@@ -100,6 +100,20 @@ p{margin:0}
 .sharebox textarea{font:inherit;font-size:.85rem;padding:6px 9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:100%;resize:vertical;word-break:break-all}
 .linkbox{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;border-left:4px solid var(--accent)}
 .linkbox p{flex:1 1 260px;font-weight:600}
+.signals{scroll-margin-top:16px}
+.sig-rules{margin:0;padding-left:1.1em;display:grid;gap:4px;font-size:.92rem}
+.sig-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
+.sig{border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:8px;align-content:start;background:var(--bg);min-width:0}
+.sig-top{display:flex;align-items:center;gap:12px}
+.sig-e{font-size:2.2rem;line-height:1;width:56px;height:56px;display:grid;place-items:center;border-radius:12px;background:var(--surface);border:1px solid var(--line);flex:none}
+.sig h4{font-family:var(--f-display);font-weight:700;font-size:1.3rem;line-height:1.1;margin:0}
+.sig .first{font-size:.72rem;font-weight:700;color:var(--ok)}
+.sig p{font-size:.93rem}
+.sig .memo{font-size:.85rem;color:var(--muted)}
+.sig svg{width:100%;height:auto;display:block;border-radius:6px}
+.hoch{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 16px;align-items:center;border-left:4px solid var(--d);padding:12px 14px;background:var(--warn-bg);border-radius:8px}
+.hoch .big{font-family:var(--f-display);font-size:2.2rem;line-height:1;color:var(--warn);letter-spacing:.02em}
+@media (max-width:480px){.hoch{grid-template-columns:1fr}}
 input[type=text],select{font:inherit;font-size:.95rem;padding:6px 9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:100%;min-width:0}
 input[type=text]:disabled,select:disabled{opacity:.7}
 input[type=text]:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -145,7 +159,7 @@ nav.jump a:hover{border-color:var(--accent)}
 .rots{display:grid;gap:20px}
 .rot{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:grid;gap:16px;scroll-margin-top:16px;min-width:0}
 .rot-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
-.rot-n{font-family:var(--f-display);font-weight:700;font-size:2.4rem;line-height:.9;color:var(--accent)}
+.rot-n{font-family:var(--f-display);font-weight:700;font-size:2.1rem;line-height:.9;color:var(--accent)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font-size:.8rem;font-weight:700;padding:2px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
 .chip.front{background:var(--z);color:var(--z-ink);border-color:transparent}
@@ -184,7 +198,8 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
     <div class="ctl">
       <span class="ctl-label" id="lbl-sys">System</span>
       <div class="seg" role="radiogroup" aria-labelledby="lbl-sys">
-        <label><input type="radio" name="sys" id="sys-51" value="51"><span>5-1</span></label>
+        <label><input type="radio" name="sys" id="sys-51S" value="51S"><span>5.1 Standard</span></label>
+        <label><input type="radio" name="sys" id="sys-51" value="51"><span>5-1 Variante</span></label>
         <label><input type="radio" name="sys" id="sys-62" value="62"><span>6-2</span></label>
         <label><input type="radio" name="sys" id="sys-42" value="42"><span>4-2</span></label>
         <label><input type="radio" name="sys" id="sys-60L" value="60L"><span>6-0 Läufer</span></label>
@@ -261,6 +276,21 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
     </div>
   </section>
 
+  <section class="panel signals" id="handzeichen" aria-labelledby="sig-title">
+    <div class="ph"><h3 id="sig-title">Handzeichen</h3><span class="pill">für 5-1, 6-2 und 4-2</span></div>
+    <ul class="hint sig-rules">
+      <li><b>Wann:</b> vor dem Aufschlag des Gegners, während ihr in der Annahme steht.</li>
+      <li><b>Wo:</b> vor dem Bauch, mit dem Körper zur Netzseite abgeschirmt, damit der Gegner nichts sieht.</li>
+      <li><b>Bestätigen:</b> Der Angreifer nickt oder sagt „ok“. Ohne Bestätigung gilt der Call nicht.</li>
+    </ul>
+    <div class="sig-grid" id="sig-grid"></div>
+    <div class="hoch">
+      <b class="big">„HOCH!“</b>
+      <p><b>Notfallregel:</b> Ist die Annahme schlecht, gilt kein Zeichen mehr. Der Zuspieler ruft laut „Hoch!“ und spielt einen hohen Ball nach außen. Sonst springt die Mitte trotzdem zum Schnellangriff, und der Punkt ist weg.</p>
+    </div>
+    <p class="hint">Fangt mit Faust, 1 und 2 an. Daumen und offene Hand kommen dazu, wenn das im Spiel sicher klappt.</p>
+  </section>
+
   <div class="legend-row" aria-label="Legende">
     <span><span class="dot z">Z</span>Zuspieler</span>
     <span><span class="dot d">D</span>Diagonal</span>
@@ -300,7 +330,8 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
   var ROLE_PRIO = {Z:0, Z1:0, Z2:1, D:2, M1:3, M2:3, A1:4, A2:4};
 
   var SYS = {
-    '51':{short:'5-1', kind:'shape', slots:['Z','M1','A1','D','M2','A2'], roles:['Z','D','A1','A2','M1','M2'], setters:['Z'], active:'one', libero:true},
+    '51S':{short:'5.1 Standard', kind:'shape', shapeSet:'std', slots:['Z','A1','M1','D','A2','M2'], roles:['Z','D','A1','A2','M1','M2'], setters:['Z'], active:'one', libero:true},
+    '51':{short:'5-1 Variante', kind:'shape', slots:['Z','M1','A1','D','M2','A2'], roles:['Z','D','A1','A2','M1','M2'], setters:['Z'], active:'one', libero:true},
     '62':{short:'6-2', kind:'shape', slots:['Z1','M1','A1','Z2','M2','A2'], roles:['Z1','Z2','A1','A2','M1','M2'], setters:['Z1','Z2'], active:'back', libero:true},
     '42':{short:'4-2', kind:'shape', slots:['Z1','M1','A1','Z2','M2','A2'], roles:['Z1','Z2','A1','A2','M1','M2'], setters:['Z1','Z2'], active:'front', libero:true},
     '60L':{short:'6-0 Läufer', kind:'pos', slots:['S1','S2','S3','S4','S5','S6'], roles:['S1','S2','S3','S4','S5','S6'], libero:false},
@@ -308,10 +339,14 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
   };
 
   var INFO = {
-    '51':{title:'5-1 mit Läufer', text:'Ein Zuspieler stellt in allen Rotationen. Steht er hinten, läuft er nach dem Aufschlag vor. Ihm gegenüber steht der Diagonalangreifer.',
-      plus:'Immer derselbe Zuspieler, dadurch die beste Abstimmung mit den Angreifern. In 3 von 6 Rotationen sind 3 Angreifer vorne.',
-      minus:'Der Zuspieler hat in den hinteren Rotationen weite Wege. Fällt er aus, gibt es keinen Ersatz.',
-      fit:'Empfehlung für euch, weil du klar der beste Zuspieler bist.'},
+    '51S':{title:'5.1 Standard', text:'Das System, das ihr gerade spielt. Ein Zuspieler stellt immer und läuft von hinten vor. Neben ihm steht ein Außen, ihm gegenüber der Diagonal. Angenommen wird von beiden Außen und dem Libero bzw. der hinteren Mitte.',
+      plus:'Bewährte Standardaufstellung. Immer derselbe Zuspieler, dadurch die beste Abstimmung. In 3 von 6 Rotationen sind 3 Angreifer vorne.',
+      minus:'Bei Läufer 1 startet der Zuspieler ganz hinten in der Ecke und hat den weitesten Weg. Bei Läufer 1 und 6 müssen Außen und Diagonal nach der Annahme die Seite wechseln.',
+      fit:'Das spielt ihr gerade, deshalb steht es an erster Stelle.'},
+    '51':{title:'5-1 Variante', text:'Wie 5.1 Standard, aber neben dem Zuspieler steht eine Mitte statt eines Außen. Dadurch sehen die Annahmeaufstellungen anders aus.',
+      plus:'In Läufer 1 startet der Zuspieler direkt hinter der Mitte am Netz und hat einen kurzen Weg.',
+      minus:'Weniger verbreitet. Wer aus anderen Teams kommt, kennt eher die Standardaufstellung.',
+      fit:'Zum Vergleichen. Für euch gilt 5.1 Standard.'},
     '62':{title:'6-2', text:'Zwei Zuspieler stehen sich gegenüber. Wer hinten steht, läuft vor und stellt. Wer vorne steht, greift als Diagonal an.',
       plus:'Immer 3 Angreifer vorne.',
       minus:'Ihr braucht zwei gute Zuspieler, die auch angreifen können. Mit zwei Zuspielern ist die Abstimmung schwieriger.',
@@ -364,6 +399,39 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
   };
   var REL = ['S','M1','A1','O','M2','A2'];
   var TYPE = {S:'S', O:'O', A1:'A', A2:'A', M1:'M', M2:'M'};
+
+  /* 5.1 Standard nach euren Vorlagen: neben dem Zuspieler steht ein Außen. Im Uhrzeigersinn S, A1, M1, O, A2, M2 */
+  var REL_STD = ['S','A1','M1','O','A2','M2'];
+  var SHAPES_STD = {
+    1:{recv:{O:[0.7,2.1], A2:[1.6,6.3], M1:[4.3,1.0], M2:[4.4,6.3], A1:[7.3,5.5], S:[8.2,7.1]},
+       move:{S:'SET', A1:'L4', M1:'M3', O:'R2'},
+       notes:[{t:'{S} startet ganz hinten rechts, hinter {A1}, und hat hier den längsten Weg. Loslaufen, sobald der Gegner den Ball trifft.'},
+              {t:'{A1} nimmt rechts an und läuft danach zum Angriff nach links. {O} steht links an der 3-m-Linie und wechselt nach rechts.'}]},
+    6:{recv:{A2:[1.4,5.4], M2:[4.1,6.3], A1:[6.8,6.4], S:[4.9,1.7], O:[5.35,0.75], M1:[7.15,0.85]},
+       move:{S:'SET', A2:'L4', O:'R2', M1:'M3'},
+       notes:[{t:'{S} steht direkt hinter {O} am Netz und hat nur einen kurzen Weg.'},
+              {t:'Nach dem Aufschlag wechselt {O} nach rechts und {M1} in die Mitte.'}]},
+    5:{recv:{S:[0.7,1.65], M2:[1.55,0.75], A2:[1.8,4.9], A1:[3.2,6.7], M1:[5.95,6.65], O:[8.1,3.0]},
+       move:{S:'SET', M2:'M3', A2:'L4', O:'R2'},
+       notes:[{t:'{S} steht links am Netz hinter {M2} und läuft am Netz entlang nach rechts.'},
+              {t:'{A2} nimmt vorne links an und greift über links an. {O} wartet rechts an der 3-m-Linie und nimmt nicht an.'}]},
+    4:{recv:{S:[0.5,0.8], M2:[1.2,1.9], A2:[2.0,4.9], A1:[3.6,6.1], M1:[6.15,6.3], O:[8.3,8.25]},
+       move:{S:'SET', M2:'M3', A2:'L4'},
+       notes:[{t:'{S} steht vorne links direkt am Netz und läuft am Netz entlang nach rechts zur Zuspielposition.'},
+              {t:'{M2} steht schräg hinter {S} und geht in die Mitte. {A2} nimmt links an und greift über links an.'},
+              {t:'Vorne sind nur 2 Angreifer, deshalb kann {S} den 2. Ball ab und zu selbst rüberlegen (Handzeichen: offene Hand).'},
+              {t:'{O} steht tief in der Ecke, nimmt nicht an und kann hinter der 3-m-Linie angreifen (Handzeichen: Daumen).'}]},
+    3:{recv:{A1:[1.4,5.1], M1:[4.0,6.0], O:[5.8,8.15], A2:[7.05,6.5], S:[5.5,1.25], M2:[7.3,1.9]},
+       move:{S:'SET', A1:'L4', M2:'M3'},
+       notes:[{t:'{S} steht vorne in der Mitte und geht nur ein paar Schritte nach rechts.'},
+              {t:'{M2} steht rechts am Netz und läuft hinter {S} in die Mitte.'},
+              {t:'{O} steht tief hinten, nimmt nicht an und kann hinter der 3-m-Linie angreifen (Handzeichen: Daumen).'}]},
+    2:{recv:{M1:[0.8,1.65], A1:[1.7,5.4], O:[2.6,8.1], A2:[3.8,6.45], M2:[6.4,6.5], S:[8.2,1.05]},
+       move:{S:'SET', A1:'L4', M1:'M3'},
+       notes:[{t:'Einfachste Rotation: {S} steht schon rechts am Netz.'},
+              {t:'{M1} steht links am Netz und geht in die Mitte. {A1} nimmt links an und greift über links an.'},
+              {t:'{O} steht hinten links tief, nimmt nicht an und kann hinter der 3-m-Linie angreifen (Handzeichen: Daumen).'}]}
+  };
 
   /* ---------- 6-0-Systeme: Formen nach Rotationsposition ---------- */
   var POSSHAPES = {
@@ -421,6 +489,7 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
     });
   }
   var DEFAULT_ASSIGN = {
+    '51S':{Z:'p1', D:'p2', A1:'p3', A2:'p4', M1:'p5', M2:'p6'},
     '51':{Z:'p1', D:'p2', A1:'p3', A2:'p4', M1:'p5', M2:'p6'},
     '62':{Z1:'p1', Z2:'p3', A1:'p2', A2:'p4', M1:'p5', M2:'p6'},
     '42':{Z1:'p1', Z2:'p3', A1:'p2', A2:'p4', M1:'p5', M2:'p6'},
@@ -450,17 +519,18 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
   }
 
   /* ---------- Zustand ---------- */
-  var state = {sys:'51', dir:'aussen', defsys:'h', persons:defaultPersons(), lineup:defaultLineup()};
+  var state = {sys:'51S', dir:'aussen', defsys:'h', persons:defaultPersons(), lineup:defaultLineup()};
   var store = {mode:'local', db:null, canWrite:true, status:'local', dbEmpty:false};
   var localTeam = null;
 
   (function loadLocal(){
     try {
+      var prefs2 = JSON.parse(localStorage.getItem('vb-prefs2') || 'null');
       var prefs = JSON.parse(localStorage.getItem('vb-prefs') || 'null');
       var v3 = JSON.parse(localStorage.getItem('vb-team-v3') || 'null');
       var v2 = JSON.parse(localStorage.getItem('vb-rot-v2') || 'null');
-      var pr = prefs || v2;
-      if (pr) { if (SYS[pr.sys]) state.sys = pr.sys; if (DEF[pr.dir]) state.dir = pr.dir; if (pr.defsys === 'v') state.defsys = 'v'; }
+      var pr = prefs2 || prefs || v2;
+      if (pr) { if (prefs2 && SYS[pr.sys]) state.sys = pr.sys; if (DEF[pr.dir]) state.dir = pr.dir; if (pr.defsys === 'v') state.defsys = 'v'; }
       if (v3) {
         (v3.persons || []).forEach(function(p, i){ if (state.persons[i]) sanitizePerson(state.persons[i], p); });
         sanitizeLineup(state.lineup, v3.lineup);
@@ -472,7 +542,7 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
     if (state.persons.some(function(p){ return p.name.trim(); })) localTeam = {persons:clone(state.persons), lineup:clone(state.lineup)};
   })();
 
-  function savePrefs(){ try { localStorage.setItem('vb-prefs', JSON.stringify({sys:state.sys, dir:state.dir, defsys:state.defsys})); } catch (e) {} }
+  function savePrefs(){ try { localStorage.setItem('vb-prefs2', JSON.stringify({sys:state.sys, dir:state.dir, defsys:state.defsys})); } catch (e) {} }
   function saveLocalTeam(){
     try {
       localStorage.setItem('vb-team-v3', JSON.stringify({
@@ -659,8 +729,8 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
     function isFront(role){ var p = posOf[role]; return p >= 2 && p <= 4; }
     if (S.kind === 'shape') {
       var active = S.active === 'one' ? S.setters[0] : S.setters.filter(function(z){ return S.active === 'back' ? !isFront(z) : isFront(z); })[0];
-      var a = S.slots.indexOf(active), zp = posOf[active], sh = SHAPES[zp];
-      REL.forEach(function(key, off){
+      var a = S.slots.indexOf(active), zp = posOf[active], sh = (S.shapeSet === 'std' ? SHAPES_STD : SHAPES)[zp];
+      (S.shapeSet === 'std' ? REL_STD : REL).forEach(function(key, off){
         var role = S.slots[(a + off) % 6], t = TYPE[key], f = isFront(role);
         r.ph[key] = role;
         r.recv[role] = sh.recv[key];
@@ -688,6 +758,7 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
       r.recvLabel = ps.recvLabel;
     }
     r.receivers.sort(function(x, y){ return r.recv[x][0] - r.recv[y][0]; });
+    r.label = (S.kind === 'shape' && S.active === 'one') ? 'Läufer ' + r.zp : 'R' + (i + 1);
     return r;
   }
   function repFor(r, phase){
@@ -801,6 +872,11 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
   function recvNotes(r){
     var out = [], rep = repFor(r, 'recv');
     out.push(r.recvLabel + ': ' + r.receivers.map(function(x){ return tag(x === rep ? 'L' : x); }).join(', ') + '.');
+    var atk = [];
+    [['L4','links'],['M3','Mitte'],['R2','rechts']].forEach(function(x){
+      Object.keys(r.move).forEach(function(role){ if (r.move[role] === x[0]) atk.push(tag(role) + ' ' + x[1]); });
+    });
+    if (atk.length) out.push('Angriff danach: ' + atk.join(', ') + '.');
     if (rep) out.push(tag('L') + ' ersetzt hinten ' + tag(rep) + ' und nimmt an.');
     r.notes.forEach(function(t){ out.push(fillT(t, r)); });
     return out;
@@ -958,8 +1034,8 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
     for (var i = 0; i < 6; i++) {
       var r = buildRot(state.sys, i);
       var fr = genderCount([r.posMap[2], r.posMap[3], r.posMap[4]]);
-      if (fr.m === 3 || fr.w === 3) badNet.push('R' + (i + 1));
-      if (state.lineup.minW && courtWomen(r) < state.lineup.minW) badMin.push('R' + (i + 1));
+      if (fr.m === 3 || fr.w === 3) badNet.push(r.label);
+      if (state.lineup.minW && courtWomen(r) < state.lineup.minW) badMin.push(r.label);
     }
     if (badNet.length) msgs.push('Mixed: In ' + badNet.join(', ') + ' stehen am Netz nur Jungs oder nur Mädchen.');
     if (badMin.length) {
@@ -1003,11 +1079,11 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
       chips += errs.length
         ? '<span class="chip bad" title="' + esc(errs.join('; ')) + '">Positionsfehler: ' + esc(errs[0]) + '</span>'
         : '<span class="chip ok">Regelcheck Annahme ✓</span>';
-      jump += '<a href="#r' + (i + 1) + '">R' + (i + 1) + '</a>';
+      jump += '<a href="#r' + (i + 1) + '">' + esc(r.label) + '</a>';
       html += '<article class="rot" id="r' + (i + 1) + '">'
-        + '<div class="rot-head"><span class="rot-n">R' + (i + 1) + '</span><h2>Zuspiel: ' + esc(nameOf(r.setter)) + '</h2><div class="chips">' + chips + '</div></div>'
+        + '<div class="rot-head"><span class="rot-n">' + esc(r.label) + '</span><h2>Zuspiel: ' + esc(nameOf(r.setter)) + '</h2><div class="chips">' + chips + '</div></div>'
         + '<div class="courts">'
-        + '<figure><figcaption>Annahme <small>· Gegner schlägt auf</small></figcaption>' + recvSvg(r) + li(recvNotes(r)) + '</figure>'
+        + '<figure><figcaption>Annahme → Angriff <small>· Gegner schlägt auf</small></figcaption>' + recvSvg(r) + li(recvNotes(r)) + '</figure>'
         + '<figure><figcaption>Grundstellung <small>· wir schlagen auf</small></figcaption>' + baseSvg(r) + li(baseNotes(r)) + '</figure>'
         + '<figure><figcaption>Abwehr <small>· Angriff über ' + D.word + ', ' + (state.defsys === 'v' ? 'Mitte vorne' : 'Mitte hinten') + '</small></figcaption>' + defSvg(r) + li(defNotes(r)) + '</figure>'
         + '</div></article>';
@@ -1106,6 +1182,46 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
     }
     S.roles.forEach(function(r){ a[r] = map[r]; });
     if (useLibero()) state.lineup.liberoP = map.L;
+  }
+
+  /* ---------- Handzeichen ---------- */
+  var SIGNALS = [
+    {e:'✊', name:'Faust', first:true, what:'Normaler hoher Ball, meist nach außen. Keine Kombination.', memo:'Eselsbrücke: Faust = solide, Standard.',
+     set:[1.2,0.45], who:{g:'a', l:'A', at:[1.2,1.4]}, lift:2.2, cap:'Hoher Ball nach außen'},
+    {e:'☝️', name:'1 Finger', first:true, what:'Die Mitte greift schnell direkt vor dem Zuspieler an (1er).', memo:'Eselsbrücke: Einer = kürzester Weg.',
+     set:[5.0,0.45], who:{g:'m', l:'M', at:[5.0,1.4]}, lift:0.7, cap:'Schnell vor dem Zuspieler'},
+    {e:'✌️', name:'2 Finger', first:true, what:'Die Mitte greift schnell kurz hinter dem Zuspieler an (2er, Rückenpass).', memo:'Eselsbrücke: Zwei = die zweite Richtung, nach hinten.',
+     set:[7.7,0.45], who:{g:'m', l:'M', at:[7.7,1.4]}, lift:0.7, cap:'Schnell hinter dem Zuspieler'},
+    {e:'👍', name:'Daumen', first:false, what:'Angriff aus dem Hinterfeld: Absprung hinter der 3-m-Linie.', memo:'Eselsbrücke: Der Daumen zeigt nach hinten.',
+     set:[4.6,2.3], who:{g:'d', l:'D', at:[4.6,3.75]}, lift:1.4, cap:'Absprung hinter der 3-m-Linie'},
+    {e:'🖐️', name:'Offene Hand', first:false, what:'Der Zuspieler legt den 2. Ball selbst rüber. Alle anderen sichern ab.', memo:'Eselsbrücke: „Ich hab ihn in der Hand.“',
+     set:[5.4,-0.75], who:null, lift:0.8, cap:'Zuspieler legt selbst rüber'}
+  ];
+  function signalSvg(s){
+    var Z = [6.3, 0.9], from = [Z[0], Z[1] - 0.5];
+    var cx = (from[0] + s.set[0]) / 2, cy = Math.min(from[1], s.set[1]) - s.lift;
+    var v = '<svg viewBox="-0.4 -1.3 9.8 5.8" role="img" aria-label="' + esc(s.cap) + '">';
+    v += '<rect x="-0.4" y="-1.3" width="9.8" height="5.8" fill="var(--free)"></rect>';
+    v += '<rect x="0" y="0" width="9" height="4.5" fill="var(--court)"></rect>';
+    v += '<line x1="0" y1="3" x2="9" y2="3" stroke="var(--court-line)" stroke-width="0.07"></line>';
+    v += '<line x1="0" y1="0" x2="0" y2="4.5" stroke="var(--court-line)" stroke-width="0.07"></line><line x1="9" y1="0" x2="9" y2="4.5" stroke="var(--court-line)" stroke-width="0.07"></line>';
+    v += '<line x1="-0.4" y1="0" x2="9.4" y2="0" stroke="var(--net)" stroke-width="0.18"></line>';
+    v += '<path d="M' + from[0] + ' ' + from[1] + ' Q' + cx.toFixed(2) + ' ' + cy.toFixed(2) + ' ' + s.set[0] + ' ' + s.set[1] + '" fill="none" stroke="var(--arrow)" stroke-width="0.08" stroke-dasharray="0.26 0.14" marker-end="url(#arr)"></path>';
+    v += '<circle cx="' + s.set[0] + '" cy="' + s.set[1] + '" r="0.26" fill="var(--ball)" stroke="var(--net)" stroke-width="0.05"></circle>';
+    if (s.who) {
+      v += '<circle cx="' + s.who.at[0] + '" cy="' + s.who.at[1] + '" r="0.55" fill="var(--' + s.who.g + ')" stroke="var(--ring)" stroke-width="0.06"></circle>';
+      v += '<text x="' + s.who.at[0] + '" y="' + (s.who.at[1] + 0.19) + '" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="0.56" fill="var(--p-ink)">' + s.who.l + '</text>';
+    }
+    v += '<circle cx="' + Z[0] + '" cy="' + Z[1] + '" r="0.55" fill="var(--z)" stroke="var(--ring)" stroke-width="0.06"></circle>';
+    v += '<text x="' + Z[0] + '" y="' + (Z[1] + 0.19) + '" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="0.56" fill="var(--z-ink)">Z</text>';
+    return v + '</svg>';
+  }
+  function renderSignals(){
+    $('sig-grid').innerHTML = SIGNALS.map(function(s){
+      return '<article class="sig"><div class="sig-top"><span class="sig-e" aria-hidden="true">' + s.e + '</span><div><h4>' + esc(s.name) + '</h4>'
+        + (s.first ? '<span class="first">zuerst lernen</span>' : '') + '</div></div>'
+        + signalSvg(s) + '<p>' + esc(s.what) + '</p><p class="memo">' + esc(s.memo) + '</p></article>';
+    }).join('');
   }
 
   /* ---------- Link teilen (für die eigenständige Version, z. B. GitHub Pages) ---------- */
@@ -1252,6 +1368,7 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
 
   var STANDALONE = !(window.claude && typeof window.claude.use === 'function');
   var linkInfo = STANDALONE ? applyHash() : null;
+  renderSignals();
   renderRosterShell();
   setStatus('local');
   renderData();
