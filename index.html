@@ -404,16 +404,17 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
   var REL_STD = ['S','A1','M1','O','A2','M2'];
   var SHAPES_STD = {
     1:{recv:{O:[0.7,2.1], A2:[1.6,6.3], M1:[4.3,1.0], M2:[4.4,6.3], A1:[7.3,5.5], S:[8.2,7.1]},
-       move:{S:'SET', A1:'L4', M1:'M3', O:'R2'},
+       move:{S:'SET', A1:'R2', M1:'M3', O:'L4'},
+       base:{O:'F4', A1:'F2'},
        notes:[{t:'{S} startet ganz hinten rechts, hinter {A1}, und hat hier den längsten Weg. Loslaufen, sobald der Gegner den Ball trifft.'},
-              {t:'{A1} nimmt rechts an und läuft danach zum Angriff nach links. {O} steht links an der 3-m-Linie und wechselt nach rechts.'}]},
+              {t:'Vorne wird in dieser Rotation nicht gewechselt: {O} bleibt links und greift über links an, {A1} nimmt rechts an und greift über rechts an.'}]},
     6:{recv:{A2:[1.4,5.4], M2:[4.1,6.3], A1:[6.8,6.4], S:[4.9,1.7], O:[5.35,0.75], M1:[7.15,0.85]},
        move:{S:'SET', A2:'L4', O:'R2', M1:'M3'},
        notes:[{t:'{S} steht direkt hinter {O} am Netz und hat nur einen kurzen Weg.'},
               {t:'Nach dem Aufschlag wechselt {O} nach rechts und {M1} in die Mitte.'}]},
-    5:{recv:{S:[0.7,1.65], M2:[1.55,0.75], A2:[1.8,4.9], A1:[3.2,6.7], M1:[5.95,6.65], O:[8.1,3.0]},
+    5:{recv:{S:[2.9,1.35], M2:[1.55,0.75], A2:[1.8,4.9], A1:[3.2,6.7], M1:[5.95,6.65], O:[8.1,3.0]},
        move:{S:'SET', M2:'M3', A2:'L4', O:'R2'},
-       notes:[{t:'{S} steht links am Netz hinter {M2} und läuft am Netz entlang nach rechts.'},
+       notes:[{t:'{S} steht so weit Richtung Mitte wie erlaubt. Einzige Bedingung: links von {A1} und hinter {M2}. Von dort geht es ans Netz nach rechts.'},
               {t:'{A2} nimmt vorne links an und greift über links an. {O} wartet rechts an der 3-m-Linie und nimmt nicht an.'}]},
     4:{recv:{S:[0.5,0.8], M2:[1.2,1.9], A2:[2.0,4.9], A1:[3.6,6.1], M1:[6.15,6.3], O:[8.3,8.25]},
        move:{S:'SET', M2:'M3', A2:'L4'},
@@ -738,6 +739,7 @@ svg.court{width:100%;height:auto;display:block;max-width:420px}
         r.base[role] = t === 'A' ? (f ? 'F4' : 'B6') : t === 'M' ? (f ? 'F3' : 'B5') : (f ? 'F2' : 'B1');
         if (t === 'M' && !f) r.backM = role;
       });
+      if (sh.base) Object.keys(sh.base).forEach(function(key){ r.base[r.ph[key]] = sh.base[key]; });
       r.setter = active; r.zp = zp; r.setterFront = isFront(active);
       r.receivers = [r.ph.A1, r.ph.A2, r.backM];
       r.notes = sh.notes.filter(function(n){ return !n.only || n.only.indexOf(sk) >= 0; }).map(function(n){ return n.t; });
