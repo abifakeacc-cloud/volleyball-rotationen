@@ -1,0 +1,1269 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Rotationen 5-1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: Hallenboden-Optik. Steuerung oben, dann System + Aufstellung/Bank, darunter der volle Kader (16 Plätze), dann 6 Rotationskarten mit je drei Feldern. */
+:root{
+  --bg:#eef2f5; --surface:#ffffff; --fg:#14202b; --muted:#566573; --line:#d3dbe2;
+  --court:#e5864c; --court-line:#fff7f0; --free:#2e6b98; --free-ink:#e7f0f7; --net:#122030; --ball:#fbfbf8;
+  --z:#f2c230; --z-ink:#14202b; --d:#c6372d; --a:#2a5fc0; --m:#1e8657; --l:#7a49b5; --n:#4f6275; --p-ink:#ffffff;
+  --arrow:#10202e; --name-ink:#ffffff; --name-halo:rgba(10,20,30,.6); --ring:#ffffff;
+  --accent:#2e6b98; --ok:#1a7a4f; --warn:#9a3b0c; --warn-bg:#fde9d9; --field-bg:#dfeaf4;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e141a; --surface:#161f28; --fg:#e4ebf1; --muted:#97a5b2; --line:#283541;
+  --court:#b9633a; --court-line:#f3e2d6; --free:#1f4a6a; --free-ink:#d8e6f1; --net:#e9eff4; --ball:#fbfbf8;
+  --n:#5d7184; --arrow:#f6f8fa; --ring:#0e141a; --accent:#7fb3dc; --ok:#6fd3a0; --warn:#ffb98a; --warn-bg:#3a2214; --field-bg:#1d3346; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0e141a; --surface:#161f28; --fg:#e4ebf1; --muted:#97a5b2; --line:#283541;
+  --court:#b9633a; --court-line:#f3e2d6; --free:#1f4a6a; --free-ink:#d8e6f1; --net:#e9eff4; --ball:#fbfbf8;
+  --n:#5d7184; --arrow:#f6f8fa; --ring:#0e141a; --accent:#7fb3dc; --ok:#6fd3a0; --warn:#ffb98a; --warn-bg:#3a2214; --field-bg:#1d3346; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;gap:24px}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;text-wrap:balance;margin:0;letter-spacing:.01em}
+h1{font-size:clamp(2.2rem,5vw,3.2rem);line-height:1}
+h2{font-size:1.5rem;line-height:1.1}
+h3{font-size:1.25rem;line-height:1.15}
+p{margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.lede{color:var(--muted);max-width:66ch;margin-top:8px}
+.eyebrow{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.12em;font-size:.85rem;color:var(--accent);font-weight:700}
+.hint{font-size:.85rem;color:var(--muted)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:12px;align-content:start;min-width:0}
+.panel ul{margin:0;padding-left:1.1em;display:grid;gap:6px}
+.ph{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px}
+.btn{font-family:var(--f-display);font-weight:700;font-size:1rem;letter-spacing:.03em;padding:7px 14px;border-radius:8px;border:1px solid var(--fg);background:var(--fg);color:var(--bg);cursor:pointer}
+.btn.secondary{background:transparent;color:var(--fg);border-color:var(--line);justify-self:start}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pill{font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.pill.ok{color:var(--ok);border-color:currentColor}
+.pill.bad{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+
+/* Steuerung */
+.controls{display:grid;gap:18px 24px;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))}
+.ctl{display:grid;gap:8px;align-content:start;min-width:0}
+.ctl-label{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:.85rem;color:var(--muted)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{position:relative;display:inline-flex}
+.seg input,.toggle input,.da input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.seg span{display:inline-block;padding:6px 13px;border:1px solid var(--line);border-radius:999px;cursor:pointer;font-family:var(--f-display);font-weight:700;font-size:1.02rem;letter-spacing:.02em;background:var(--bg)}
+.seg input:checked + span{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.seg input:focus-visible + span,.toggle input:focus-visible + span,.da input:focus-visible + i{outline:2px solid var(--accent);outline-offset:2px}
+.toggle{position:relative;display:inline-flex;align-items:center;gap:10px;cursor:pointer;width:fit-content}
+.toggle span{display:inline-flex;align-items:center;gap:10px;font-weight:600}
+.toggle span::before{content:"";width:38px;height:22px;border-radius:999px;background:var(--line);transition:background .15s}
+.toggle span::after{content:"";position:absolute;left:3px;top:50%;width:16px;height:16px;margin-top:-8px;border-radius:50%;background:var(--surface);transition:transform .15s}
+.toggle input:checked + span::before{background:var(--l)}
+.toggle input:checked + span::after{transform:translateX(16px)}
+.toggle input:disabled + span{opacity:.45;cursor:not-allowed}
+.da{position:relative;display:inline-flex;align-items:center;cursor:pointer}
+.da i{position:relative;display:inline-block;width:38px;height:22px;border-radius:999px;background:var(--line);transition:background .15s}
+.da i::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:var(--surface);transition:transform .15s}
+.da input:checked + i{background:var(--ok)}
+.da input:checked + i::after{transform:translateX(16px)}
+.da input:disabled + i{opacity:.45;cursor:not-allowed}
+@media (prefers-reduced-motion:reduce){.toggle span::before,.toggle span::after,.da i,.da i::after{transition:none}}
+
+.intro{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+.pm{font-size:.95rem}
+.fit{border-left:4px solid var(--z);padding-left:10px;font-weight:600}
+.sub{font-family:var(--f-display);font-weight:700;font-size:1.05rem}
+.start{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.start > div{border:1px solid var(--line);border-radius:6px;padding:6px 8px;display:flex;gap:8px;align-items:center;min-width:0}
+.start .net-bar{grid-column:1/-1;display:block;border:0;border-radius:0;text-align:center;font-family:var(--f-display);letter-spacing:.2em;font-size:.8rem;color:var(--muted);border-bottom:3px solid var(--fg);padding:0 0 2px}
+.cell-txt{display:grid;min-width:0;line-height:1.2}
+.cell-txt span{font-size:.85rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell-txt small{color:var(--muted);font-size:.72rem}
+.dot{width:28px;height:28px;border-radius:50%;display:inline-grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:.85rem;flex:none;color:var(--p-ink)}
+.dot.z{background:var(--z);color:var(--z-ink)} .dot.d{background:var(--d)} .dot.a{background:var(--a)} .dot.m{background:var(--m)} .dot.l{background:var(--l)} .dot.n{background:var(--n)}
+
+.roles{display:grid;gap:8px}
+.role-row{display:grid;grid-template-columns:28px minmax(0,.8fr) minmax(0,1.6fr);gap:10px;align-items:center}
+.role-row label{font-size:.92rem}
+.mix{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;font-size:.92rem;font-weight:600}
+.sharebox{display:grid;gap:8px;border:1px dashed var(--line);border-radius:8px;padding:12px}
+.sharebox .ph p{max-width:62ch;flex:1 1 260px}
+.sharebox textarea{font:inherit;font-size:.85rem;padding:6px 9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:100%;resize:vertical;word-break:break-all}
+.linkbox{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;border-left:4px solid var(--accent)}
+.linkbox p{flex:1 1 260px;font-weight:600}
+input[type=text],select{font:inherit;font-size:.95rem;padding:6px 9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:100%;min-width:0}
+input[type=text]:disabled,select:disabled{opacity:.7}
+input[type=text]:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.warnbox{background:var(--warn-bg);color:var(--warn);border-radius:6px;padding:8px 10px;font-size:.9rem;font-weight:600;display:grid;gap:4px}
+.bank{display:grid;gap:8px}
+.bchips{display:flex;flex-wrap:wrap;gap:6px}
+.bchip{display:inline-flex;gap:6px;align-items:baseline;border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-size:.88rem;background:var(--bg)}
+.bchip small{color:var(--muted);font-size:.75rem}
+.bchip.miss{opacity:.5;text-decoration:line-through;text-decoration-color:var(--muted)}
+
+/* Kader */
+.kgrid{display:grid}
+.krow{display:grid;grid-template-columns:26px 50px minmax(0,1.5fr) 72px minmax(0,1fr) minmax(0,1fr) 132px;
+  grid-template-areas:"nr da name g main second st";gap:8px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.khead{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:.78rem;color:var(--muted);border-top:0;padding-top:0}
+.c-nr{grid-area:nr}.c-da{grid-area:da}.c-name{grid-area:name}.c-g{grid-area:g}.c-main{grid-area:main}.c-second{grid-area:second}.c-st{grid-area:st}
+.num{font-family:var(--f-display);font-weight:700;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.krow.absent .c-name,.krow.absent .c-g,.krow.absent .c-main,.krow.absent .c-second{opacity:.45}
+.krow.absent .c-name{text-decoration:line-through}
+.krow.empty .c-name,.krow.empty .c-g,.krow.empty .c-main,.krow.empty .c-second{opacity:.6}
+.st{font-size:.8rem;font-weight:700;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;justify-self:start;max-width:100%}
+.st.field{background:var(--field-bg);color:var(--fg);border-color:transparent}
+.st.lib{background:var(--l);color:#fff;border-color:transparent}
+.st.bank{color:var(--fg)}
+.st.miss{opacity:.55}
+.st.bad{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+.st.free{border-style:dashed}
+@media (max-width:760px){
+  .khead{display:none}
+  .krow{grid-template-columns:50px 62px minmax(0,1fr) minmax(0,1fr);grid-template-areas:"da name name st" "nr g main second";row-gap:6px}
+  .c-nr{text-align:center}
+}
+
+.rules{display:grid;gap:16px 28px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.rules > div{display:grid;gap:8px;align-content:start}
+.legend-row{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.85rem;color:var(--muted)}
+.legend-row > span{display:inline-flex;gap:6px;align-items:center}
+.sw{width:22px;height:0;border-top:2px dashed var(--fg)}
+nav.jump{display:flex;flex-wrap:wrap;gap:8px}
+nav.jump a{font-family:var(--f-display);font-weight:700;letter-spacing:.04em;text-decoration:none;color:var(--fg);border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 14px}
+nav.jump a:hover{border-color:var(--accent)}
+
+.rots{display:grid;gap:20px}
+.rot{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:grid;gap:16px;scroll-margin-top:16px;min-width:0}
+.rot-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.rot-n{font-family:var(--f-display);font-weight:700;font-size:2.4rem;line-height:.9;color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.8rem;font-weight:700;padding:2px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.chip.front{background:var(--z);color:var(--z-ink);border-color:transparent}
+.chip.ok{color:var(--ok);border-color:currentColor}
+.chip.bad{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+.courts{display:grid;gap:22px 18px;grid-template-columns:1fr}
+figure{margin:0;display:grid;gap:8px;align-content:start;min-width:0}
+figcaption{font-family:var(--f-display);font-weight:700;font-size:1.1rem;letter-spacing:.02em}
+figcaption small{font-family:var(--f-body);font-weight:400;color:var(--muted);font-size:.85rem;letter-spacing:0}
+svg.court{width:100%;height:auto;display:block;max-width:420px}
+.notes{margin:0;padding-left:1.1em;display:grid;gap:6px;font-size:.93rem}
+.rl{font-size:.72rem;color:var(--muted);font-weight:700;border:1px solid var(--line);border-radius:4px;padding:0 4px;white-space:nowrap}
+@media (min-width:860px){.courts{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" style="fill:var(--arrow)"></path>
+    </marker>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow" id="eyebrow">Mixed-Team · 6 Rotationen</p>
+    <h1>Rotationen</h1>
+    <p class="lede">Hier wählt ihr System, Libero und Abwehr und tragt im Kader ein, wer da ist. Jede Rotation hat drei Bilder: die Annahme bei gegnerischem Aufschlag, die Grundstellung nach dem Wechsel und die Abwehr gegen den gegnerischen Angriff mit Laufwegen.</p>
+  </header>
+
+  <div class="panel linkbox" id="linkbanner" hidden aria-live="polite"><p id="link-msg"></p><button class="btn secondary" id="undo-link" type="button">Rückgängig</button></div>
+
+  <section class="panel controls" aria-label="Einstellungen">
+    <div class="ctl">
+      <span class="ctl-label" id="lbl-sys">System</span>
+      <div class="seg" role="radiogroup" aria-labelledby="lbl-sys">
+        <label><input type="radio" name="sys" id="sys-51" value="51"><span>5-1</span></label>
+        <label><input type="radio" name="sys" id="sys-62" value="62"><span>6-2</span></label>
+        <label><input type="radio" name="sys" id="sys-42" value="42"><span>4-2</span></label>
+        <label><input type="radio" name="sys" id="sys-60L" value="60L"><span>6-0 Läufer</span></label>
+        <label><input type="radio" name="sys" id="sys-60M" value="60M"><span>6-0 Anfänger</span></label>
+      </div>
+    </div>
+    <div class="ctl">
+      <span class="ctl-label">Libero</span>
+      <label class="toggle"><input type="checkbox" id="libero"><span>Libero einsetzen</span></label>
+      <p class="hint" id="libero-hint"></p>
+    </div>
+    <div class="ctl">
+      <span class="ctl-label" id="lbl-dir">Gegner greift an über</span>
+      <div class="seg" role="radiogroup" aria-labelledby="lbl-dir">
+        <label><input type="radio" name="dir" id="dir-aussen" value="aussen"><span>Außen</span></label>
+        <label><input type="radio" name="dir" id="dir-mitte" value="mitte"><span>Mitte</span></label>
+        <label><input type="radio" name="dir" id="dir-diagonal" value="diagonal"><span>Diagonal</span></label>
+      </div>
+      <p class="hint">Der gegnerische Außen greift von seiner linken Seite an, der Ball kommt also bei euch rechts an. Beim Diagonal ist es umgekehrt.</p>
+    </div>
+    <div class="ctl">
+      <span class="ctl-label" id="lbl-def">Abwehrsystem</span>
+      <div class="seg" role="radiogroup" aria-labelledby="lbl-def">
+        <label><input type="radio" name="defsys" id="def-h" value="h"><span>Mitte hinten</span></label>
+        <label><input type="radio" name="defsys" id="def-v" value="v"><span>Mitte vorne</span></label>
+      </div>
+      <p class="hint">Bei „Mitte vorne“ läuft der Spieler von Position 6 hinter den Block. Das lohnt sich, wenn der Gegner viel legt. Bei „Mitte hinten“ bleibt er tief, das ist besser gegen harte Schläge.</p>
+    </div>
+  </section>
+
+  <section class="intro">
+    <div class="panel" id="sysinfo"></div>
+    <div class="panel">
+      <div class="ph"><h3>Aufstellung</h3><button class="btn" id="auto" type="button">Mit Anwesenden aufstellen</button></div>
+      <p class="hint">Hier legt ihr fest, wer in diesem System was spielt. Der Knopf stellt nur mit Leuten auf, die da sind. Er achtet auf Haupt- und Zweitrolle und darauf, dass in keiner Rotation nur Jungs oder nur Mädchen am Netz stehen.</p>
+      <label class="mix" for="minw"><span>Mixed-Regel eurer Liga</span><select id="minw"><option value="0">keine Mindestzahl</option><option value="1">mind. 1 Frau auf dem Feld</option><option value="2">mind. 2 Frauen auf dem Feld</option><option value="3">mind. 3 Frauen auf dem Feld</option></select></label>
+      <div class="roles" id="roles"></div>
+      <div class="warnbox" id="warn" hidden></div>
+      <div class="bank" id="bank"></div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="kader-title">
+    <div class="ph"><h3 id="kader-title">Kader &amp; Bank</h3><span class="pill" id="store-status"></span></div>
+    <div class="sharebox" id="sharebox" hidden>
+      <div class="ph"><p class="hint">Schick Kader, Anwesenheit und Aufstellung als Link in die Teamgruppe. Wer ihn öffnet, sieht genau diese Aufstellung, ganz ohne Konto. Der Link enthält die Namen, teil ihn also nur im Team.</p><button class="btn" id="share" type="button">Link teilen</button></div>
+      <p class="hint" id="share-msg" aria-live="polite"></p>
+      <textarea id="share-out" rows="3" readonly hidden aria-label="Link zum Kopieren"></textarea>
+    </div>
+    <p class="hint" id="kader-hint"></p>
+    <div class="chips" id="ksum"></div>
+    <button class="btn secondary" id="import" type="button" hidden>Namen aus diesem Browser übernehmen</button>
+    <div class="kgrid" id="roster"></div>
+  </section>
+
+  <section class="panel rules">
+    <div>
+      <h3>Wann welches Bild</h3>
+      <ul>
+        <li><b>Annahme:</b> Der Gegner schlägt auf. Die Pfeile zeigen, wohin jeder nach dem Aufschlag läuft.</li>
+        <li><b>Grundstellung:</b> Ihr schlagt auf. Beim Aufschlag stehen alle in Rotationsordnung und wechseln sofort danach.</li>
+        <li><b>Abwehr:</b> Der Gegner greift an. Jeder läuft aus der Grundstellung los, sobald der gegnerische Zuspieler stellt.</li>
+        <li>Holt ihr den Punkt bei gegnerischem Aufschlag, rotiert ihr eine Position im Uhrzeigersinn weiter.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Positionsfehler vermeiden</h3>
+      <ul>
+        <li>Wer vorne steht, muss näher am Netz sein als der Spieler direkt dahinter (4 vor 5, 3 vor 6, 2 vor 1).</li>
+        <li>In jeder Reihe gilt links → Mitte → rechts.</li>
+        <li>Erst wenn der Aufschläger den Ball trifft, darf jeder loslaufen.</li>
+        <li>Der Libero übernimmt beim Aufschlag die Position der Person, für die er drin ist.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="legend-row" aria-label="Legende">
+    <span><span class="dot z">Z</span>Zuspieler</span>
+    <span><span class="dot d">D</span>Diagonal</span>
+    <span><span class="dot a">A</span>Außen</span>
+    <span><span class="dot m">M</span>Mitte</span>
+    <span><span class="dot l">L</span>Libero</span>
+    <span><span class="sw"></span>Laufweg</span>
+    <span>P1–P6 = Rotationsposition beim Aufschlag · m/w = Geschlecht</span>
+  </div>
+
+  <nav class="jump" id="jump" aria-label="Zu Rotation springen"></nav>
+  <div class="warnbox" id="rotwarn" hidden></div>
+  <div class="rots" id="rots"></div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ---------- Feste Punkte auf dem Feld (Meter, Netz oben bei y=0, links = Position 4/5) ---------- */
+  var SPOT = {
+    SET:[6.3,0.9], L4:[1.2,3.2], M3:[4.5,2.4], R2:[7.8,3.2],
+    F4:[1.3,1.0], F3:[4.5,1.0], F2:[7.7,1.0], B5:[1.6,7.0], B6:[4.5,7.7], B1:[7.5,7.0]
+  };
+  var SPOTPOS = {F4:4, F3:3, F2:2, B5:5, B6:6, B1:1};
+  var SERVE = [7.6, 9.95];
+
+  var META = {
+    Z:{g:'z',label:'Z',desc:'Zuspieler'}, D:{g:'d',label:'D',desc:'Diagonal'},
+    Z1:{g:'z',label:'Z1',desc:'Zuspieler 1'}, Z2:{g:'z',label:'Z2',desc:'Zuspieler 2'},
+    A1:{g:'a',label:'A1',desc:'Außen 1'}, A2:{g:'a',label:'A2',desc:'Außen 2'},
+    M1:{g:'m',label:'M1',desc:'Mitte 1'}, M2:{g:'m',label:'M2',desc:'Mitte 2'},
+    L:{g:'l',label:'L',desc:'Libero'}
+  };
+  for (var k = 1; k <= 6; k++) META['S'+k] = {g:'n', label:'P'+k, desc:'Startposition '+k};
+  var ROLE_TYPE = {Z:'Z', Z1:'Z', Z2:'Z', D:'D', A1:'A', A2:'A', M1:'M', M2:'M', L:'L'};
+  var ROLE_PRIO = {Z:0, Z1:0, Z2:1, D:2, M1:3, M2:3, A1:4, A2:4};
+
+  var SYS = {
+    '51':{short:'5-1', kind:'shape', slots:['Z','M1','A1','D','M2','A2'], roles:['Z','D','A1','A2','M1','M2'], setters:['Z'], active:'one', libero:true},
+    '62':{short:'6-2', kind:'shape', slots:['Z1','M1','A1','Z2','M2','A2'], roles:['Z1','Z2','A1','A2','M1','M2'], setters:['Z1','Z2'], active:'back', libero:true},
+    '42':{short:'4-2', kind:'shape', slots:['Z1','M1','A1','Z2','M2','A2'], roles:['Z1','Z2','A1','A2','M1','M2'], setters:['Z1','Z2'], active:'front', libero:true},
+    '60L':{short:'6-0 Läufer', kind:'pos', slots:['S1','S2','S3','S4','S5','S6'], roles:['S1','S2','S3','S4','S5','S6'], libero:false},
+    '60M':{short:'6-0 Anfänger', kind:'pos', slots:['S1','S2','S3','S4','S5','S6'], roles:['S1','S2','S3','S4','S5','S6'], libero:false}
+  };
+
+  var INFO = {
+    '51':{title:'5-1 mit Läufer', text:'Ein Zuspieler stellt in allen Rotationen. Steht er hinten, läuft er nach dem Aufschlag vor. Ihm gegenüber steht der Diagonalangreifer.',
+      plus:'Immer derselbe Zuspieler, dadurch die beste Abstimmung mit den Angreifern. In 3 von 6 Rotationen sind 3 Angreifer vorne.',
+      minus:'Der Zuspieler hat in den hinteren Rotationen weite Wege. Fällt er aus, gibt es keinen Ersatz.',
+      fit:'Empfehlung für euch, weil du klar der beste Zuspieler bist.'},
+    '62':{title:'6-2', text:'Zwei Zuspieler stehen sich gegenüber. Wer hinten steht, läuft vor und stellt. Wer vorne steht, greift als Diagonal an.',
+      plus:'Immer 3 Angreifer vorne.',
+      minus:'Ihr braucht zwei gute Zuspieler, die auch angreifen können. Mit zwei Zuspielern ist die Abstimmung schwieriger.',
+      fit:'Nur sinnvoll, wenn ihr einen zweiten brauchbaren Zuspieler habt.'},
+    '42':{title:'4-2', text:'Zwei Zuspieler stehen sich gegenüber. Wer vorne steht, stellt. Niemand muss vorlaufen.',
+      plus:'Einfach, kurze Wege, kaum Positionsfehler.',
+      minus:'Vorne sind immer nur 2 Angreifer, das macht euch für den gegnerischen Block leichter.',
+      fit:'Gute Zwischenstufe, solange das Vorlaufen im 5-1 noch nicht sitzt.'},
+    '60L':{title:'6-0 mit Läufer', text:'Jeder stellt mal: Wer auf Position 1 steht, läuft vor und stellt. Es gibt keine festen Rollen und keine Wechsel.',
+      plus:'Jeder lernt alles. Vorne sind immer 3 Angreifer.',
+      minus:'Jeder muss stellen können, sonst wird das Zuspiel unsauber. Im Wettkampf meist schwächer als 5-1.',
+      fit:'Gut fürs Training oder wenn noch nicht klar ist, wer was am besten kann.'},
+    '60M':{title:'6-0 für Anfänger', text:'Wer vorne in der Mitte steht, stellt. Die anderen fünf nehmen im W an.',
+      plus:'Das einfachste System mit den kürzesten Wegen.',
+      minus:'Nur 2 Angreifer und sehr berechenbar.',
+      fit:'Nur für Anfänger oder lockere Spiele.'}
+  };
+
+  /* ---------- Annahmeformen für 5-1, 6-2, 4-2. Schlüssel = Position des stellenden Zuspielers.
+     S = stellender Zuspieler, dann im Uhrzeigersinn M1, A1, O (gegenüber), M2, A2 ---------- */
+  var SHAPES = {
+    1:{recv:{O:[0.8,1.0], A1:[1.9,6.2], M1:[8.3,0.8], S:[7.8,1.9], M2:[4.5,6.6], A2:[7.2,6.6]},
+       move:{A1:'L4', O:'R2', M1:'M3', S:'SET'},
+       notes:[{t:'{S} startet rechts direkt hinter {M1} und hat nur 1–2 Meter bis zum Netz.'},
+              {t:'{O} steht links am Netz und läuft nach dem Aufschlag nach rechts. {M1} geht in die Mitte.'}]},
+    6:{recv:{M2:[0.5,1.3], O:[1.4,0.7], A1:[2.3,6.2], S:[6.0,1.7], A2:[4.6,6.6], M1:[7.3,6.6]},
+       move:{A1:'L4', M2:'M3', O:'R2', S:'SET'},
+       notes:[{t:'{M2} und {O} stehen links nebeneinander am Netz, {S} steht schräg hinter {O}.'},
+              {t:'Nach dem Aufschlag läuft {O} nach rechts, {M2} in die Mitte und {S} ans Netz.'}]},
+    5:{recv:{A2:[1.8,5.2], S:[3.1,5.7], M1:[4.9,6.6], A1:[7.4,6.4], M2:[4.5,0.8], O:[7.8,0.9]},
+       move:{A2:'L4', M2:'M3', O:'R2', S:'SET'},
+       notes:[{t:'Längster Weg für {S}: Start hinter {A2}. Loslaufen, sobald der Gegner den Ball trifft.'},
+              {t:'{A2} nimmt etwas weiter vorne an, damit {S} nicht ganz hinten starten muss. {S} nimmt keinen Ball an.'}]},
+    4:{recv:{S:[4.1,0.6], A2:[4.8,6.0], M2:[7.6,0.9], M1:[2.0,6.6], A1:[7.3,6.6], O:[8.5,8.0]},
+       move:{S:'SET', A2:'L4', M2:'M3'},
+       notes:[{t:'{S} steht schon links von {A2} am Netz und geht nur ein paar Schritte nach rechts.'},
+              {t:'{M2} läuft hinter {S} in die Mitte.'},
+              {t:'Vorne sind nur 2 Angreifer, deshalb kann {S} den 2. Ball ab und zu selbst rüberlegen.'},
+              {t:'{O} kann hinter der 3-m-Linie angreifen (Handzeichen: Daumen).', only:['51']}]},
+    3:{recv:{M1:[0.5,1.3], S:[1.4,0.6], A2:[2.3,6.2], A1:[4.6,6.6], M2:[7.3,6.6], O:[6.0,8.3]},
+       move:{A2:'L4', M1:'M3', S:'SET'},
+       notes:[{t:'{S} und {M1} stehen links am Netz. {S} läuft am Netz nach rechts, {M1} geht in die Mitte.'},
+              {t:'{O} steht tief hinten und nimmt keine Bälle an.'},
+              {t:'{O} kann hinter der 3-m-Linie angreifen (Handzeichen: Daumen).', only:['51']}]},
+    2:{recv:{A1:[1.9,6.0], O:[3.0,8.3], M2:[4.6,6.6], A2:[7.3,6.6], M1:[4.5,0.8], S:[7.0,0.6]},
+       move:{A1:'L4', M1:'M3', S:'SET'},
+       notes:[{t:'Einfachste Rotation: {S} steht schon rechts am Netz.'},
+              {t:'{O} steht tief hinter {A1} und geht danach nach rechts hinten.'},
+              {t:'{O} kann hinter der 3-m-Linie angreifen (Handzeichen: Daumen).', only:['51']}]}
+  };
+  var REL = ['S','M1','A1','O','M2','A2'];
+  var TYPE = {S:'S', O:'O', A1:'A', A2:'A', M1:'M', M2:'M'};
+
+  /* ---------- 6-0-Systeme: Formen nach Rotationsposition ---------- */
+  var POSSHAPES = {
+    '60L':{setterPos:1, attackers:3, recvLabel:'Annahme (4er-Riegel)',
+      recv:{1:[7.8,1.8], 2:[8.3,0.8], 3:[5.8,4.6], 4:[2.2,4.6], 5:[3.0,7.2], 6:[6.6,7.2]},
+      move:{1:'SET', 2:'R2', 3:'M3', 4:'L4'}, receivers:[3,4,5,6],
+      notes:['{P1} ist Läufer: Start rechts hinter {P2}, nach dem Aufschlag sofort ans Netz zwischen Position 2 und 3.',
+             '{P2} bleibt am Netz und nimmt nicht an.',
+             'Keine Wechsel: Jeder greift von seiner Position an.']},
+    '60M':{setterPos:3, attackers:2, recvLabel:'Annahme (W mit 5)',
+      recv:{1:[6.4,7.6], 2:[7.5,4.6], 3:[4.6,0.7], 4:[1.5,4.6], 5:[2.6,7.6], 6:[4.5,5.6]},
+      move:{2:'R2', 4:'L4'}, receivers:[1,2,4,5,6],
+      notes:['{P3} steht vorne in der Mitte am Netz, stellt und nimmt nie an.',
+             'Angegriffen wird nur über {P4} (links) und {P2} (rechts).']}
+  };
+
+  /* ---------- Abwehr: Ziel je Grundposition, Richtung und System ---------- */
+  var DEF = {
+    aussen:{ball:7.6, word:'Außen', order:['F2','F3','F4','B1','B5','B6'],
+      F2:{xy:[7.75,0.5], t:'blockt außen'},
+      F3:{xy:[6.8,0.5], t:'blockt mit und schließt an den Außenblock an'},
+      F4:{xy:[1.9,3.4], t:'geht vom Netz weg bis zur 3-m-Linie und nimmt kurze Diagonale und Finten'},
+      B1:{xy:[8.2,6.0], xyv:[8.1,7.2], t:'Linie', tv:'Linie bis zur Grundlinie'},
+      B5:{xy:[1.2,6.3], xyv:[1.4,7.0], t:'Diagonale', tv:'Diagonale bis zur Grundlinie'},
+      B6:{xy:[5.0,8.2], xyv:[6.3,3.3], t:'tiefe Bälle und Abpraller vom Block', tv:'läuft hinter den Block und nimmt Finten und Lobs'}},
+    mitte:{ball:4.5, word:'Mitte', order:['F3','F4','F2','B5','B1','B6'],
+      F3:{xy:[4.5,0.5], t:'blockt'},
+      F4:{xy:[1.7,3.2], t:'geht vom Netz weg, Finten links'},
+      F2:{xy:[7.3,3.2], t:'geht vom Netz weg, Finten rechts'},
+      B5:{xy:[1.4,6.5], xyv:[1.5,7.0], t:'links hinten'},
+      B1:{xy:[7.6,6.5], xyv:[7.5,7.0], t:'rechts hinten'},
+      B6:{xy:[4.5,8.2], xyv:[4.5,3.7], t:'Mitte tief', tv:'läuft hinter den Block und nimmt Finten'}},
+    diagonal:{ball:1.4, word:'Diagonal', order:['F4','F3','F2','B5','B1','B6'],
+      F4:{xy:[1.25,0.5], t:'blockt außen'},
+      F3:{xy:[2.2,0.5], t:'blockt mit und schließt an den Außenblock an'},
+      F2:{xy:[7.1,3.4], t:'geht vom Netz weg bis zur 3-m-Linie und nimmt kurze Diagonale und Finten'},
+      B5:{xy:[0.8,6.0], xyv:[0.9,7.2], t:'Linie', tv:'Linie bis zur Grundlinie'},
+      B1:{xy:[7.8,6.3], xyv:[7.6,7.0], t:'Diagonale', tv:'Diagonale bis zur Grundlinie'},
+      B6:{xy:[4.0,8.2], xyv:[2.7,3.3], t:'tiefe Bälle und Abpraller vom Block', tv:'läuft hinter den Block und nimmt Finten und Lobs'}}
+  };
+
+  /* ---------- Kader ---------- */
+  var N = 16;
+  var PROLES = [['Z','Zuspiel'],['D','Diagonal'],['A','Außen'],['M','Mitte'],['L','Libero'],['U','Allrounder']];
+  var PROLE_NAME = {Z:'Zuspiel', D:'Diagonal', A:'Außen', M:'Mitte', L:'Libero', U:'Allrounder'};
+  var HINTS = ['Du','Stärkster Schlag','Spieler 3','Beste Annahme','Spielerin 5','Spielerin 6','Libero / Ersatz'];
+  var DEF_MAIN = ['Z','D','A','A','M','M','L'];
+  var DEF_G = ['m','m','m','w','w','w','w'];
+  var IDS = []; for (var q = 1; q <= N; q++) IDS.push('p' + q);
+
+  function clone(o){ return JSON.parse(JSON.stringify(o)); }
+  function defaultPersons(){
+    return IDS.map(function(id, i){
+      return {id:id, name:'', g:DEF_G[i] || 'm', main:DEF_MAIN[i] || '', second:'', present:true, hint:HINTS[i] || 'frei'};
+    });
+  }
+  var DEFAULT_ASSIGN = {
+    '51':{Z:'p1', D:'p2', A1:'p3', A2:'p4', M1:'p5', M2:'p6'},
+    '62':{Z1:'p1', Z2:'p3', A1:'p2', A2:'p4', M1:'p5', M2:'p6'},
+    '42':{Z1:'p1', Z2:'p3', A1:'p2', A2:'p4', M1:'p5', M2:'p6'},
+    '60L':{S1:'p1', S2:'p5', S3:'p3', S4:'p2', S5:'p6', S6:'p4'},
+    '60M':{S1:'p1', S2:'p5', S3:'p3', S4:'p2', S5:'p6', S6:'p4'}
+  };
+  function defaultLineup(){ return {assign:clone(DEFAULT_ASSIGN), liberoP:'p7', libero:false, minW:0}; }
+
+  function sanitizePerson(p, src){
+    if (!src || typeof src !== 'object') return;
+    if (typeof src.name === 'string') p.name = src.name.slice(0, 20);
+    if ('g' in src) p.g = src.g === 'w' ? 'w' : 'm';
+    if ('main' in src) p.main = PROLE_NAME[src.main] ? src.main : '';
+    if ('second' in src) p.second = PROLE_NAME[src.second] ? src.second : '';
+    if ('present' in src) p.present = src.present !== false;
+  }
+  function sanitizeLineup(L, src){
+    if (!src || typeof src !== 'object') return;
+    if (src.assign) Object.keys(L.assign).forEach(function(sk){
+      if (src.assign[sk]) Object.keys(L.assign[sk]).forEach(function(r){
+        if (IDS.indexOf(src.assign[sk][r]) >= 0) L.assign[sk][r] = src.assign[sk][r];
+      });
+    });
+    if (IDS.indexOf(src.liberoP) >= 0) L.liberoP = src.liberoP;
+    if ('libero' in src) L.libero = !!src.libero;
+    if ('minW' in src) { var mw = parseInt(src.minW, 10); L.minW = mw >= 0 && mw <= 3 ? mw : 0; }
+  }
+
+  /* ---------- Zustand ---------- */
+  var state = {sys:'51', dir:'aussen', defsys:'h', persons:defaultPersons(), lineup:defaultLineup()};
+  var store = {mode:'local', db:null, canWrite:true, status:'local', dbEmpty:false};
+  var localTeam = null;
+
+  (function loadLocal(){
+    try {
+      var prefs = JSON.parse(localStorage.getItem('vb-prefs') || 'null');
+      var v3 = JSON.parse(localStorage.getItem('vb-team-v3') || 'null');
+      var v2 = JSON.parse(localStorage.getItem('vb-rot-v2') || 'null');
+      var pr = prefs || v2;
+      if (pr) { if (SYS[pr.sys]) state.sys = pr.sys; if (DEF[pr.dir]) state.dir = pr.dir; if (pr.defsys === 'v') state.defsys = 'v'; }
+      if (v3) {
+        (v3.persons || []).forEach(function(p, i){ if (state.persons[i]) sanitizePerson(state.persons[i], p); });
+        sanitizeLineup(state.lineup, v3.lineup);
+      } else if (v2) {
+        (v2.persons || []).forEach(function(p, i){ if (state.persons[i]) sanitizePerson(state.persons[i], {name:p.name, g:p.g}); });
+        sanitizeLineup(state.lineup, {assign:v2.assign, liberoP:v2.liberoP, libero:v2.libero});
+      }
+    } catch (e) {}
+    if (state.persons.some(function(p){ return p.name.trim(); })) localTeam = {persons:clone(state.persons), lineup:clone(state.lineup)};
+  })();
+
+  function savePrefs(){ try { localStorage.setItem('vb-prefs', JSON.stringify({sys:state.sys, dir:state.dir, defsys:state.defsys})); } catch (e) {} }
+  function saveLocalTeam(){
+    try {
+      localStorage.setItem('vb-team-v3', JSON.stringify({
+        persons:state.persons.map(function(p){ return {name:p.name, g:p.g, main:p.main, second:p.second, present:p.present}; }),
+        lineup:state.lineup
+      }));
+    } catch (e) {}
+  }
+
+  /* ---------- Speichern in der Team-Liste (db), sonst lokal ---------- */
+  var pend = {}, inflight = {}, timers = {}, retried = {};
+  function isPending(path){ return !!(pend[path] || inflight[path] || timers[path]); }
+  function write(path, data, delay){
+    if (store.mode !== 'db') { saveLocalTeam(); return; }
+    if (!store.canWrite) return;
+    pend[path] = data;
+    clearTimeout(timers[path]);
+    timers[path] = setTimeout(function(){ timers[path] = null; flush(path); }, delay || 0);
+  }
+  function flush(path){
+    if (inflight[path] || !pend[path]) return;
+    var data = pend[path];
+    pend[path] = null; inflight[path] = true;
+    store.db.doc(path).set(data).then(function(){
+      retried[path] = false;
+      if (store.status !== 'db') setStatus('db');
+    }, function(err){
+      var code = err && err.code;
+      if (code === 'invalid_argument') { store.canWrite = false; setStatus('readonly'); renderAll(); }
+      else if (code === 'quota_exceeded') setStatus('quota');
+      else if (code === 'unavailable' && !retried[path]) {
+        retried[path] = true;
+        if (!pend[path]) pend[path] = data;
+        setTimeout(function(){ flush(path); }, 800 + Math.random() * 800);
+      } else setStatus('writefail');
+    }).then(function(){
+      inflight[path] = false;
+      if (pend[path]) flush(path);
+    });
+  }
+  function personDoc(p){ return {name:p.name, g:p.g, main:p.main, second:p.second, present:p.present, nr:IDS.indexOf(p.id) + 1}; }
+  function savePerson(p, delay){ write('players/' + p.id, personDoc(p), delay); }
+  function saveLineup(){ write('team/lineup', clone(state.lineup), 0); }
+
+  var STATUS = {
+    local:['Nur in diesem Browser', ''],
+    loading:['Team-Liste lädt …', ''],
+    slow:['Team-Liste nicht erreichbar', 'bad'],
+    db:['Team-Liste gespeichert', 'ok'],
+    readonly:['Nur ansehen', ''],
+    dberror:['Team-Liste nicht erreichbar', 'bad'],
+    writefail:['Speichern fehlgeschlagen', 'bad'],
+    quota:['Speicher voll', 'bad']
+  };
+  function setStatus(s){
+    store.status = s;
+    var el = $('store-status'), d = STATUS[s];
+    el.textContent = d[0]; el.className = 'pill' + (d[1] ? ' ' + d[1] : '');
+    var hint = {
+      local:'Die Liste wird nur in diesem Browser gespeichert.',
+      loading:'Die Team-Liste wird geladen.',
+      slow:'Die Team-Liste antwortet gerade nicht. Was du siehst, ist eventuell nicht aktuell.',
+      db:'Die Liste ist in der Seite gespeichert und auf jedem Gerät gleich. Jeder, dem du die Seite freigibst, sieht sie. Ändern kann nur, wer Bearbeitungsrechte hat.',
+      readonly:'Du kannst die Liste ansehen, aber nicht ändern.',
+      dberror:'Die Team-Liste ist gerade nicht erreichbar. Lade die Seite später neu.',
+      writefail:'Die letzte Änderung wurde nicht gespeichert. Ändere sie bitte noch einmal.',
+      quota:'Der Speicher der Seite ist voll. Neue Einträge werden nicht gespeichert.'
+    }[s];
+    $('kader-hint').textContent = hint + ' Hauptrolle und Zweitrolle nutzt der Knopf „Mit Anwesenden aufstellen“.';
+    renderImport();
+  }
+
+  function initDb(){
+    if (!window.claude || typeof window.claude.use !== 'function') { setStatus('local'); return; }
+    window.claude.use('user').then(function(u){
+      if (u && typeof u.can === 'function') {
+        Promise.resolve(u.can('data.write')).then(function(v){
+          if (v === false) { store.canWrite = false; if (store.mode === 'db') setStatus('readonly'); renderAll(); }
+        }, function(){});
+      }
+    }, function(){});
+    window.claude.use('db').then(function(db){
+      if (!db) { setStatus('local'); return; }
+      store.db = db; store.mode = 'db'; setStatus('loading');
+      var fresh = {p:false, l:false}, done = false;
+      var timer = setTimeout(function(){ if (!done) setStatus('slow'); }, 10000);
+      function check(which, meta){
+        if (!meta.fromCache) fresh[which] = true;
+        if (!done && fresh.p && fresh.l) { done = true; clearTimeout(timer); setStatus(store.canWrite ? 'db' : 'readonly'); }
+      }
+      function fail(){ done = true; clearTimeout(timer); setStatus('dberror'); }
+      db.collection('players').onSnapshot(function(snap){
+        var next = defaultPersons();
+        snap.docs.forEach(function(d){
+          var i = IDS.indexOf(d.id);
+          if (i >= 0) sanitizePerson(next[i], d.data());
+        });
+        next.forEach(function(p, i){ if (isPending('players/' + p.id)) next[i] = state.persons[i]; });
+        state.persons = next;
+        store.dbEmpty = snap.empty;
+        check('p', snap.metadata);
+        renderData();
+      }, fail);
+      db.doc('team/lineup').onSnapshot(function(snap){
+        if (!isPending('team/lineup')) {
+          var L = defaultLineup();
+          if (snap.exists) sanitizeLineup(L, snap.data());
+          state.lineup = L;
+        }
+        check('l', snap.metadata);
+        renderData();
+      }, fail);
+    }, function(){ setStatus('local'); });
+  }
+
+  /* ---------- Helfer ---------- */
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  var $ = function(id){ return document.getElementById(id); };
+  function sysObj(){ return SYS[state.sys]; }
+  function pById(id){ for (var i = 0; i < state.persons.length; i++) if (state.persons[i].id === id) return state.persons[i]; return null; }
+  function pNum(p){ return state.persons.indexOf(p) + 1; }
+  function exists(p){ return !!p.name.trim() || IDS.indexOf(p.id) < 7; }
+  function rolesShort(p){
+    var a = [];
+    if (p.main) a.push(PROLE_NAME[p.main]);
+    if (p.second) a.push(PROLE_NAME[p.second]);
+    return a.join(' / ');
+  }
+  function personLabel(p){
+    var r = rolesShort(p);
+    return pNum(p) + ' · ' + (p.name.trim() || p.hint) + (r ? ' (' + r + ')' : '') + (p.present ? '' : ' – fehlt');
+  }
+  function useLibero(){ return state.lineup.libero && sysObj().libero; }
+  function personOf(role){ return pById(role === 'L' ? state.lineup.liberoP : state.lineup.assign[state.sys][role]); }
+  function lineupEntries(){
+    var a = state.lineup.assign[state.sys];
+    var out = sysObj().roles.map(function(r){ return {role:r, id:a[r]}; });
+    if (useLibero()) out.push({role:'L', id:state.lineup.liberoP});
+    return out;
+  }
+  function lineupRoleOf(id){
+    var e = lineupEntries().filter(function(x){ return x.id === id; });
+    return e.length ? e.map(function(x){ return META[x.role].label; }).join(', ') : null;
+  }
+  function available(){ return state.persons.filter(function(p){ return exists(p) && p.present; }); }
+  function score(p, t){
+    if (!t) return p.main === 'L' ? 0.5 : 1;
+    if (p.main === t) return 4;
+    if (p.second === t) return 3;
+    if (p.main === 'U') return 2;
+    if (p.second === 'U') return 1.5;
+    return 0;
+  }
+  function circleLabel(role){
+    if (role === 'L') return 'L';
+    if (sysObj().kind === 'pos') { var p = personOf(role); return p ? String(pNum(p)) : '?'; }
+    return META[role].label;
+  }
+  function group(role, r){
+    if (role === 'L') return 'l';
+    if (sysObj().kind === 'pos') return role === r.setter ? 'z' : 'n';
+    return META[role].g;
+  }
+  function nameOf(role){
+    var p = personOf(role), n = p && p.name.trim();
+    if (n) return n;
+    if (role === 'L') return 'Libero';
+    if (sysObj().kind === 'pos') return 'Nr. ' + (p ? pNum(p) : '?');
+    return META[role].label;
+  }
+  function tag(role){
+    var p = personOf(role), n = p && p.name.trim();
+    var s = '<b>' + esc(nameOf(role)) + '</b>';
+    if (n && (sysObj().kind === 'shape' || role === 'L')) s += ' <span class="rl">' + esc(META[role].label) + '</span>';
+    if (p && !p.present) s += ' <span class="rl">fehlt</span>';
+    return s;
+  }
+
+  /* ---------- Rotation berechnen ---------- */
+  function buildRot(sk, i){
+    var S = SYS[sk], posMap = {}, posOf = {};
+    S.slots.forEach(function(role, k){ var p = ((k - i) % 6 + 6) % 6 + 1; posMap[p] = role; posOf[role] = p; });
+    var r = {i:i, posMap:posMap, posOf:posOf, recv:{}, move:{}, base:{}, receivers:[], notes:[], ph:{}, server:posMap[1], backM:null, recvLabel:'Annahme'};
+    function isFront(role){ var p = posOf[role]; return p >= 2 && p <= 4; }
+    if (S.kind === 'shape') {
+      var active = S.active === 'one' ? S.setters[0] : S.setters.filter(function(z){ return S.active === 'back' ? !isFront(z) : isFront(z); })[0];
+      var a = S.slots.indexOf(active), zp = posOf[active], sh = SHAPES[zp];
+      REL.forEach(function(key, off){
+        var role = S.slots[(a + off) % 6], t = TYPE[key], f = isFront(role);
+        r.ph[key] = role;
+        r.recv[role] = sh.recv[key];
+        if (sh.move[key]) r.move[role] = sh.move[key];
+        r.base[role] = t === 'A' ? (f ? 'F4' : 'B6') : t === 'M' ? (f ? 'F3' : 'B5') : (f ? 'F2' : 'B1');
+        if (t === 'M' && !f) r.backM = role;
+      });
+      r.setter = active; r.zp = zp; r.setterFront = isFront(active);
+      r.receivers = [r.ph.A1, r.ph.A2, r.backM];
+      r.notes = sh.notes.filter(function(n){ return !n.only || n.only.indexOf(sk) >= 0; }).map(function(n){ return n.t; });
+      r.attackers = r.setterFront ? 2 : 3;
+    } else {
+      var ps = POSSHAPES[sk];
+      for (var p = 1; p <= 6; p++) {
+        var role = posMap[p];
+        r.ph['P' + p] = role;
+        r.recv[role] = ps.recv[p];
+        if (ps.move[p]) r.move[role] = ps.move[p];
+        r.base[role] = ['', 'B1', 'F2', 'F3', 'F4', 'B5', 'B6'][p];
+      }
+      r.setter = posMap[ps.setterPos]; r.zp = ps.setterPos; r.setterFront = isFront(r.setter);
+      r.receivers = ps.receivers.map(function(q){ return posMap[q]; });
+      r.notes = ps.notes.slice();
+      r.attackers = ps.attackers;
+      r.recvLabel = ps.recvLabel;
+    }
+    r.receivers.sort(function(x, y){ return r.recv[x][0] - r.recv[y][0]; });
+    return r;
+  }
+  function repFor(r, phase){
+    if (!useLibero() || !r.backM) return null;
+    if (phase !== 'recv' && r.backM === r.server) return null;
+    return r.backM;
+  }
+  function onCourt(r, phase){
+    var rep = repFor(r, phase);
+    return sysObj().slots.map(function(role){ return {orig:role, role: role === rep ? 'L' : role}; });
+  }
+  function overlapErrors(r){
+    var c = {}, e = [];
+    for (var p = 1; p <= 6; p++) c[p] = r.recv[r.posMap[p]];
+    [[4,5],[3,6],[2,1]].forEach(function(q){ if (!(c[q[0]][1] < c[q[1]][1])) e.push('Pos ' + q[0] + ' steht nicht vor Pos ' + q[1]); });
+    [[4,3],[3,2],[5,6],[6,1]].forEach(function(q){ if (!(c[q[0]][0] < c[q[1]][0])) e.push('Pos ' + q[0] + ' steht nicht links von Pos ' + q[1]); });
+    return e;
+  }
+  function courtWomen(r){
+    var b = genderCount(onCourt(r, 'base').map(function(it){ return it.role; })).w;
+    var v = genderCount(onCourt(r, 'recv').map(function(it){ return it.role; })).w;
+    return Math.min(b, v);
+  }
+  function genderCount(roles){
+    var m = 0, w = 0;
+    roles.forEach(function(role){ var p = personOf(role); if (p && p.g === 'w') w++; else m++; });
+    return {m:m, w:w};
+  }
+
+  /* ---------- SVG ---------- */
+  function player(role, x, y, r, o){
+    o = o || {};
+    var g = group(role, r), p = personOf(role), dim = o.ghost || (p && !p.present);
+    var fill = 'var(--' + g + ')', ink = g === 'z' ? 'var(--z-ink)' : 'var(--p-ink)';
+    var s = '<g' + (dim ? ' opacity=".4"' : '') + '>';
+    s += '<circle cx="' + x + '" cy="' + y + '" r="0.46" fill="' + fill + '" stroke="var(--ring)" stroke-width="0.06"' + (dim ? ' stroke-dasharray="0.12 0.08"' : '') + '></circle>';
+    s += '<text x="' + x + '" y="' + (y + 0.15) + '" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="0.44" fill="' + ink + '">' + esc(circleLabel(role)) + '</text>';
+    if (!o.ghost) {
+      if (o.pos) {
+        s += '<circle cx="' + (x + 0.44) + '" cy="' + (y - 0.42) + '" r="0.23" fill="var(--surface)" stroke="var(--fg)" stroke-width="0.03"></circle>';
+        s += '<text x="' + (x + 0.44) + '" y="' + (y - 0.33) + '" text-anchor="middle" font-family="Source Sans 3, system-ui, sans-serif" font-weight="700" font-size="0.24" fill="var(--fg)">' + o.pos + '</text>';
+      }
+      if (p && !o.noGender) {
+        s += '<circle cx="' + (x - 0.44) + '" cy="' + (y - 0.42) + '" r="0.2" fill="var(--surface)" stroke="var(--fg)" stroke-width="0.03"></circle>';
+        s += '<text x="' + (x - 0.44) + '" y="' + (y - 0.34) + '" text-anchor="middle" font-family="Source Sans 3, system-ui, sans-serif" font-weight="700" font-size="0.24" fill="var(--fg)">' + p.g + '</text>';
+      }
+      if (p) {
+        var n = p.name.trim();
+        if (n) s += '<text x="' + x + '" y="' + (y + 0.86) + '" text-anchor="middle" font-family="Source Sans 3, system-ui, sans-serif" font-weight="700" font-size="0.32" fill="var(--name-ink)" stroke="var(--name-halo)" stroke-width="0.09" paint-order="stroke">' + esc(n.length > 12 ? n.slice(0, 11) + '…' : n) + '</text>';
+      }
+    }
+    return s + '</g>';
+  }
+  function arrow(a, b){
+    var dx = b[0] - a[0], dy = b[1] - a[1], L = Math.sqrt(dx * dx + dy * dy);
+    if (L < 1.1) return '';
+    var ux = dx / L, uy = dy / L;
+    var x1 = a[0] + ux * 0.55, y1 = a[1] + uy * 0.55, x2 = b[0] - ux * 0.2, y2 = b[1] - uy * 0.2;
+    return '<line x1="' + x1.toFixed(2) + '" y1="' + y1.toFixed(2) + '" x2="' + x2.toFixed(2) + '" y2="' + y2.toFixed(2) + '" stroke="var(--arrow)" stroke-width="0.07" stroke-dasharray="0.26 0.14" marker-end="url(#arr)"></line>';
+  }
+  function court(inner, label, ball){
+    var s = '<svg class="court" viewBox="-1 -1.5 11 12.6" role="img" aria-label="' + esc(label) + '">';
+    s += '<rect x="-1" y="-1.5" width="11" height="12.6" rx="0.3" fill="var(--free)"></rect>';
+    if (ball === undefined) {
+      s += '<text x="4.5" y="-0.75" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="0.4" letter-spacing="0.12" fill="var(--free-ink)">GEGNER</text>';
+    }
+    s += '<rect x="0" y="0" width="9" height="9" fill="var(--court)" stroke="var(--court-line)" stroke-width="0.08"></rect>';
+    s += '<line x1="0" y1="3" x2="9" y2="3" stroke="var(--court-line)" stroke-width="0.07"></line>';
+    s += '<text x="9.15" y="3.12" font-family="Source Sans 3, system-ui, sans-serif" font-size="0.3" fill="var(--free-ink)">3 m</text>';
+    s += '<line x1="-0.55" y1="0" x2="9.55" y2="0" stroke="var(--net)" stroke-width="0.2"></line>';
+    s += '<circle cx="-0.55" cy="0" r="0.14" fill="var(--net)"></circle><circle cx="9.55" cy="0" r="0.14" fill="var(--net)"></circle>';
+    if (ball !== undefined) {
+      var right = ball < 6;
+      s += '<circle cx="' + ball + '" cy="-0.8" r="0.3" fill="var(--ball)" stroke="var(--net)" stroke-width="0.05"></circle>';
+      s += '<path d="M' + (ball - 0.3) + ' -0.8 Q' + ball + ' -0.6 ' + (ball + 0.3) + ' -0.8 M' + ball + ' -1.1 Q' + (ball - 0.12) + ' -0.8 ' + ball + ' -0.5" fill="none" stroke="var(--net)" stroke-width="0.035"></path>';
+      s += '<text x="' + (right ? ball + 0.5 : ball - 0.5) + '" y="-0.68" text-anchor="' + (right ? 'start' : 'end') + '" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="700" font-size="0.36" letter-spacing="0.06" fill="var(--free-ink)">ANGRIFF GEGNER</text>';
+    }
+    return s + inner + '</svg>';
+  }
+  function recvSvg(r){
+    var a = '', p = '', list = onCourt(r, 'recv');
+    list.forEach(function(it){ var mv = r.move[it.orig]; if (mv) a += arrow(r.recv[it.orig], SPOT[mv]); });
+    list.forEach(function(it){ var c = r.recv[it.orig]; p += player(it.role, c[0], c[1], r, {pos:'P' + r.posOf[it.orig]}); });
+    return court(a + p, 'Rotation ' + (r.i + 1) + ', Annahmeaufstellung');
+  }
+  function baseSvg(r){
+    var a = '', p = '', list = onCourt(r, 'base');
+    list.forEach(function(it){
+      var c = SPOT[r.base[it.orig]];
+      p += player(it.role, c[0], c[1], r, it.orig === r.server ? {ghost:true} : {});
+    });
+    a += arrow(SERVE, SPOT[r.base[r.server]]);
+    p += player(r.server, SERVE[0], SERVE[1], r);
+    return court(a + p, 'Rotation ' + (r.i + 1) + ', Grundstellung nach dem Wechsel');
+  }
+  function defXY(sp){ var d = DEF[state.dir][sp]; return (state.defsys === 'v' && d.xyv) ? d.xyv : d.xy; }
+  function defTxt(sp){ var d = DEF[state.dir][sp]; return (state.defsys === 'v' && d.tv) ? d.tv : d.t; }
+  function defSvg(r){
+    var a = '', p = '', list = onCourt(r, 'def');
+    list.forEach(function(it){
+      var sp = r.base[it.orig], to = defXY(sp);
+      if (arrow(SPOT[sp], to)) a += '<circle cx="' + SPOT[sp][0] + '" cy="' + SPOT[sp][1] + '" r="0.17" fill="var(--arrow)" opacity=".45"></circle>' + arrow(SPOT[sp], to);
+      p += player(it.role, to[0], to[1], r, {noGender:true});
+    });
+    return court(a + p, 'Rotation ' + (r.i + 1) + ', Abwehr', DEF[state.dir].ball);
+  }
+
+  /* ---------- Texte ---------- */
+  function fillT(t, r){ return esc(t).replace(/\{(\w+)\}/g, function(_, key){ return tag(r.ph[key]); }); }
+  function li(arr){ return '<ul class="notes">' + arr.map(function(x){ return '<li>' + x + '</li>'; }).join('') + '</ul>'; }
+  function recvNotes(r){
+    var out = [], rep = repFor(r, 'recv');
+    out.push(r.recvLabel + ': ' + r.receivers.map(function(x){ return tag(x === rep ? 'L' : x); }).join(', ') + '.');
+    if (rep) out.push(tag('L') + ' ersetzt hinten ' + tag(rep) + ' und nimmt an.');
+    r.notes.forEach(function(t){ out.push(fillT(t, r)); });
+    return out;
+  }
+  function baseNotes(r){
+    var out = [], sw = [];
+    out.push('Aufschlag: ' + tag(r.server) + '. Beim Aufschlag stehen alle noch in Rotationsordnung.');
+    onCourt(r, 'base').forEach(function(it){
+      var from = r.posOf[it.orig], to = SPOTPOS[r.base[it.orig]];
+      if (from !== to) sw.push(tag(it.role) + ' ' + from + '&nbsp;→&nbsp;' + to);
+    });
+    out.push(sw.length ? 'Wechsel direkt nach dem Aufschlag: ' + sw.join(', ') + '.' : 'Keine Wechsel nötig, alle bleiben auf ihrer Position.');
+    if (useLibero() && r.backM && r.backM === r.server)
+      out.push(tag(r.backM) + ' schlägt selbst auf, weil der Libero nicht aufschlagen darf, und bleibt den Ballwechsel drin. Der Libero kommt wieder rein, sobald der Gegner aufschlägt.');
+    else if (useLibero() && r.backM)
+      out.push(tag('L') + ' spielt hinten links für ' + tag(r.backM) + '.');
+    return out;
+  }
+  function defNotes(r){
+    var out = [], D = DEF[state.dir], at = {};
+    onCourt(r, 'def').forEach(function(it){ at[r.base[it.orig]] = it.role; });
+    D.order.forEach(function(sp){ out.push(tag(at[sp]) + ': ' + defTxt(sp) + '.'); });
+    var sSpot = r.base[r.setter], backup;
+    if (useLibero() && at.B5 === 'L') backup = 'L';
+    else if (sSpot === 'B1') backup = at.F2;
+    else backup = at.B6;
+    out.push('Spielt ' + tag(r.setter) + ' den 1. Ball, stellt ' + tag(backup) + ' den 2. Ball hoch nach außen.');
+    return out;
+  }
+
+  /* ---------- Rendering ---------- */
+  function renderControls(){
+    $('sys-' + state.sys).checked = true;
+    $('dir-' + state.dir).checked = true;
+    $('def-' + state.defsys).checked = true;
+    var lib = $('libero');
+    lib.checked = state.lineup.libero;
+    lib.disabled = !sysObj().libero || !store.canWrite;
+    $('libero-hint').textContent = sysObj().libero
+      ? 'Der Libero ersetzt hinten die Mitte. Er darf nicht über Netzhöhe angreifen, nicht blocken und nicht aufschlagen. Ihr braucht dafür eine 7. Person.'
+      : 'Im 6-0 spielt jeder alles, deshalb ist hier kein Libero vorgesehen.';
+    $('eyebrow').textContent = 'System ' + sysObj().short + ' · Mixed · 6 Rotationen';
+    $('auto').disabled = !store.canWrite;
+    var mw = $('minw');
+    if (document.activeElement !== mw) mw.value = String(state.lineup.minW || 0);
+    mw.disabled = !store.canWrite;
+  }
+
+  function renderInfo(){
+    var I = INFO[state.sys], r = buildRot(state.sys, 0);
+    var cells = [4, 3, 2, 5, 6, 1].map(function(p){
+      var role = r.posMap[p];
+      return '<div><span class="dot ' + group(role, r) + '">' + esc(circleLabel(role)) + '</span><span class="cell-txt"><span>' + esc(nameOf(role)) + '</span><small>Pos ' + p + '</small></span></div>';
+    }).join('');
+    $('sysinfo').innerHTML = '<h3>' + esc(I.title) + '</h3><p>' + esc(I.text) + '</p>'
+      + '<ul class="pm"><li><b>Vorteil:</b> ' + esc(I.plus) + '</li><li><b>Nachteil:</b> ' + esc(I.minus) + '</li></ul>'
+      + '<p class="fit">' + esc(I.fit) + '</p>'
+      + '<p class="sub">Startaufstellung (Rotation 1)</p><div class="start"><div class="net-bar">NETZ</div>' + cells + '</div>';
+  }
+
+  function roleOptions(empty){
+    return '<option value="">' + empty + '</option>' + PROLES.map(function(x){ return '<option value="' + x[0] + '">' + x[1] + '</option>'; }).join('');
+  }
+  function renderRosterShell(){
+    var head = '<div class="krow khead" aria-hidden="true"><span class="c-nr">Nr</span><span class="c-da">Da</span><span class="c-name">Name</span><span class="c-g">Geschlecht</span><span class="c-main">Hauptrolle</span><span class="c-second">Zweitrolle</span><span class="c-st">Status</span></div>';
+    var rows = IDS.map(function(id, i){
+      var n = i + 1;
+      return '<div class="krow" id="kr-' + i + '">'
+        + '<span class="c-nr num">' + n + '</span>'
+        + '<label class="c-da da"><input type="checkbox" id="pd-' + i + '" data-i="' + i + '" data-f="present"><i></i><span class="sr">Person ' + n + ' ist da</span></label>'
+        + '<input class="c-name" type="text" id="pn-' + i + '" data-i="' + i + '" data-f="name" maxlength="20" aria-label="Name Person ' + n + '">'
+        + '<select class="c-g" id="pg-' + i + '" data-i="' + i + '" data-f="g" aria-label="Geschlecht Person ' + n + '"><option value="m">m</option><option value="w">w</option></select>'
+        + '<select class="c-main" id="pm-' + i + '" data-i="' + i + '" data-f="main" aria-label="Hauptrolle Person ' + n + '">' + roleOptions('Hauptrolle …') + '</select>'
+        + '<select class="c-second" id="ps-' + i + '" data-i="' + i + '" data-f="second" aria-label="Zweitrolle Person ' + n + '">' + roleOptions('Zweitrolle …') + '</select>'
+        + '<span class="c-st st" id="pst-' + i + '"></span>'
+        + '</div>';
+    }).join('');
+    $('roster').innerHTML = head + rows;
+  }
+  function setVal(id, v){ var el = $(id); if (el && document.activeElement !== el && el.value !== v) el.value = v; }
+  function statusOf(p){
+    var inL = lineupRoleOf(p.id);
+    if (!exists(p)) return ['frei', 'free'];
+    if (inL && !p.present) return ['fehlt · eingeteilt als ' + inL, 'bad'];
+    if (!p.present) return ['fehlt', 'miss'];
+    if (inL === 'L') return ['Libero', 'lib'];
+    if (inL) return ['Feld · ' + inL, 'field'];
+    return ['Bank', 'bank'];
+  }
+  function updateRoster(){
+    var dis = !store.canWrite;
+    state.persons.forEach(function(p, i){
+      setVal('pn-' + i, p.name); setVal('pg-' + i, p.g); setVal('pm-' + i, p.main); setVal('ps-' + i, p.second);
+      var cb = $('pd-' + i); if (document.activeElement !== cb) cb.checked = p.present;
+      $('pn-' + i).placeholder = p.hint;
+      ['pn-', 'pg-', 'pm-', 'ps-', 'pd-'].forEach(function(pre){ $(pre + i).disabled = dis; });
+      var st = statusOf(p), el = $('pst-' + i);
+      el.textContent = st[0]; el.className = 'c-st st ' + st[1]; el.title = st[0];
+      $('kr-' + i).className = 'krow' + (!exists(p) ? ' empty' : !p.present ? ' absent' : '');
+    });
+    var present = available(), m = 0, w = 0;
+    present.forEach(function(p){ if (p.g === 'w') w++; else m++; });
+    var ids = {}; lineupEntries().forEach(function(x){ ids[x.id] = true; });
+    var bench = present.filter(function(p){ return !ids[p.id]; }).length;
+    var missing = state.persons.filter(function(p){ return exists(p) && !p.present; }).length;
+    $('ksum').innerHTML = '<span class="chip">Da: ' + present.length + ' (' + m + ' m · ' + w + ' w)</span>'
+      + '<span class="chip">Bank: ' + bench + '</span>'
+      + '<span class="chip">Fehlt: ' + missing + '</span>';
+  }
+  function renderImport(){
+    var btn = $('import');
+    btn.hidden = !(store.mode === 'db' && store.dbEmpty && localTeam && store.canWrite && store.status === 'db');
+  }
+
+  function renderRoles(){
+    var S = sysObj(), a = state.lineup.assign[state.sys], dis = store.canWrite ? '' : ' disabled';
+    function row(role, val){
+      var isPos = S.kind === 'pos' && role !== 'L';
+      var opts = state.persons.filter(function(p){ return exists(p) || p.id === val; }).map(function(p){
+        return '<option value="' + p.id + '"' + (p.id === val ? ' selected' : '') + '>' + esc(personLabel(p)) + '</option>';
+      }).join('');
+      var id = 'role-' + state.sys + '-' + role;
+      return '<div class="role-row"><span class="dot ' + (isPos ? 'n' : META[role].g) + '">' + esc(META[role].label) + '</span>'
+        + '<label for="' + id + '">' + esc(META[role].desc) + '</label>'
+        + '<select id="' + id + '" data-role="' + role + '"' + dis + '>' + opts + '</select></div>';
+    }
+    var rows = S.roles.map(function(role){ return row(role, a[role]); });
+    if (useLibero()) rows.push(row('L', state.lineup.liberoP));
+    $('roles').innerHTML = rows.join('');
+    renderWarn();
+    renderBank();
+  }
+  function benchFor(role){
+    var ids = {}; lineupEntries().forEach(function(x){ ids[x.id] = true; });
+    var t = sysObj().kind === 'pos' && role !== 'L' ? null : ROLE_TYPE[role];
+    return available().filter(function(p){ return !ids[p.id] && score(p, t) > 0; })
+      .sort(function(x, y){ return score(y, t) - score(x, t); }).slice(0, 3)
+      .map(function(p){ return (p.name.trim() || p.hint) + (rolesShort(p) ? ' (' + rolesShort(p) + ')' : ''); });
+  }
+  function renderWarn(){
+    var msgs = [], used = {};
+    lineupEntries().forEach(function(x){ used[x.id] = (used[x.id] || 0) + 1; });
+    var dups = Object.keys(used).filter(function(k){ return used[k] > 1; }).map(function(k){ return personLabel(pById(k)); });
+    if (dups.length) msgs.push('Doppelt eingeteilt: ' + dups.join(', ') + '. Wähl für jede Rolle eine andere Person.');
+    lineupEntries().forEach(function(x){
+      var p = pById(x.id);
+      if (p && !p.present) {
+        var c = benchFor(x.role);
+        msgs.push((p.name.trim() || p.hint) + ' (' + META[x.role].label + ') fehlt. ' + (c.length ? 'Von der Bank passt: ' + c.join(', ') + '.' : 'Auf der Bank passt niemand direkt.'));
+      }
+    });
+    var need = lineupEntries().length, have = available().length;
+    if (have < need) msgs.push('Nur ' + have + ' Leute da, für diese Aufstellung braucht ihr ' + need + '.');
+    var badNet = [], badMin = [];
+    for (var i = 0; i < 6; i++) {
+      var r = buildRot(state.sys, i);
+      var fr = genderCount([r.posMap[2], r.posMap[3], r.posMap[4]]);
+      if (fr.m === 3 || fr.w === 3) badNet.push('R' + (i + 1));
+      if (state.lineup.minW && courtWomen(r) < state.lineup.minW) badMin.push('R' + (i + 1));
+    }
+    if (badNet.length) msgs.push('Mixed: In ' + badNet.join(', ') + ' stehen am Netz nur Jungs oder nur Mädchen.');
+    if (badMin.length) {
+      var wHere = available().filter(function(p){ return p.g === 'w'; }).length;
+      msgs.push('Mixed-Regel verletzt in ' + badMin.join(', ') + '.' + (wHere < state.lineup.minW ? (wHere === 1 ? ' Heute ist nur 1 Frau da' : ' Heute sind nur ' + wHere + ' Frauen da') + ', die Regel ist so nicht erfüllbar.' : ' Probier „Mit Anwesenden aufstellen“.'));
+    }
+    var el = $('warn');
+    el.hidden = !msgs.length;
+    el.innerHTML = msgs.map(function(m){ return '<p>' + esc(m) + '</p>'; }).join('');
+  }
+  function renderBank(){
+    var ids = {}; lineupEntries().forEach(function(x){ ids[x.id] = true; });
+    var bench = available().filter(function(p){ return !ids[p.id]; });
+    var miss = state.persons.filter(function(p){ return exists(p) && !p.present; });
+    function chip(p, isMiss){
+      var r = rolesShort(p);
+      return '<span class="bchip' + (isMiss ? ' miss' : '') + '"><b>' + esc(p.name.trim() || p.hint) + '</b>' + (r ? '<small>' + esc(r) + '</small>' : '') + '</span>';
+    }
+    var html = '<p class="sub">Bank</p>' + (bench.length ? '<div class="bchips">' + bench.map(function(p){ return chip(p, false); }).join('') + '</div>' : '<p class="hint">Niemand auf der Bank. Trag im Kader weitere Leute ein.</p>');
+    if (miss.length) html += '<p class="sub">Fehlt heute</p><div class="bchips">' + miss.map(function(p){ return chip(p, true); }).join('') + '</div>';
+    $('bank').innerHTML = html;
+  }
+
+  function renderRots(){
+    var html = '', jump = '', D = DEF[state.dir];
+    for (var i = 0; i < 6; i++) {
+      var r = buildRot(state.sys, i);
+      var fr = genderCount([r.posMap[2], r.posMap[3], r.posMap[4]]);
+      var frBad = fr.m === 3 || fr.w === 3;
+      var errs = overlapErrors(r);
+      var chips = '<span class="chip' + (r.setterFront ? ' front' : '') + '">Zuspiel von Pos ' + r.zp + (r.setterFront ? ' · vorne' : ' · läuft vor') + '</span>'
+        + '<span class="chip">' + r.attackers + ' Angreifer vorne</span>'
+        + '<span class="chip' + (frBad ? ' bad' : '') + '">Netz: ' + fr.m + ' m · ' + fr.w + ' w' + (frBad ? ' (unausgeglichen)' : '') + '</span>';
+      if (useLibero()) {
+        var fc = genderCount(onCourt(r, 'recv').map(function(it){ return it.role; }));
+        chips += '<span class="chip">Feld mit Libero: ' + fc.m + ' m · ' + fc.w + ' w</span>';
+      }
+      var wMin = courtWomen(r);
+      if (state.lineup.minW && wMin < state.lineup.minW)
+        chips += '<span class="chip bad">Mixed-Regel: nur ' + wMin + (wMin === 1 ? ' Frau' : ' Frauen') + ' auf dem Feld</span>';
+      chips += errs.length
+        ? '<span class="chip bad" title="' + esc(errs.join('; ')) + '">Positionsfehler: ' + esc(errs[0]) + '</span>'
+        : '<span class="chip ok">Regelcheck Annahme ✓</span>';
+      jump += '<a href="#r' + (i + 1) + '">R' + (i + 1) + '</a>';
+      html += '<article class="rot" id="r' + (i + 1) + '">'
+        + '<div class="rot-head"><span class="rot-n">R' + (i + 1) + '</span><h2>Zuspiel: ' + esc(nameOf(r.setter)) + '</h2><div class="chips">' + chips + '</div></div>'
+        + '<div class="courts">'
+        + '<figure><figcaption>Annahme <small>· Gegner schlägt auf</small></figcaption>' + recvSvg(r) + li(recvNotes(r)) + '</figure>'
+        + '<figure><figcaption>Grundstellung <small>· wir schlagen auf</small></figcaption>' + baseSvg(r) + li(baseNotes(r)) + '</figure>'
+        + '<figure><figcaption>Abwehr <small>· Angriff über ' + D.word + ', ' + (state.defsys === 'v' ? 'Mitte vorne' : 'Mitte hinten') + '</small></figcaption>' + defSvg(r) + li(defNotes(r)) + '</figure>'
+        + '</div></article>';
+    }
+    $('rots').innerHTML = html;
+    $('jump').innerHTML = jump;
+    var missing = lineupEntries().map(function(x){ return pById(x.id); }).filter(function(p){ return p && !p.present; });
+    var rw = $('rotwarn');
+    rw.hidden = !missing.length;
+    rw.innerHTML = missing.length ? '<p>Achtung: ' + esc(missing.map(function(p){ return p.name.trim() || p.hint; }).join(', ')) + ' fehlt heute, ist aber eingeteilt (blass dargestellt). Tausch oben unter „Aufstellung“ oder nutz „Mit Anwesenden aufstellen“.</p>' : '';
+  }
+
+  function renderData(){ renderControls(); renderInfo(); renderRoles(); updateRoster(); renderImport(); renderRots(); }
+  function renderAll(){ renderData(); }
+
+  /* ---------- Automatisch aufstellen ---------- */
+  /* Mixed-Bewertung einer möglichen Aufstellung (map: Rolle -> Person-ID).
+     Strafpunkte für: nur Jungs/nur Mädchen am Netz, unausgeglichenes Feld, verletzte Mindestzahl Frauen. */
+  function isW(id){ var p = pById(id); return !!p && p.g === 'w'; }
+  function mixPenalty(map, lib){
+    var S = sysObj(), pen = 0, minW = state.lineup.minW || 0;
+    var courtW = S.slots.reduce(function(n, r){ return n + (isW(map[r]) ? 1 : 0); }, 0);
+    pen += 0.5 * Math.abs(6 - 2 * courtW);
+    for (var i = 0; i < 6; i++) {
+      var fw = 0, backM = null;
+      S.slots.forEach(function(role, k){
+        var p = ((k - i) % 6 + 6) % 6 + 1, front = p >= 2 && p <= 4;
+        if (front && isW(map[role])) fw++;
+        if (!front && ROLE_TYPE[role] === 'M') backM = role;
+      });
+      if (fw === 0 || fw === 3) pen += 1;
+      var wRecv = courtW;
+      if (lib && backM) wRecv = courtW - (isW(map[backM]) ? 1 : 0) + (isW(lib) ? 1 : 0);
+      var worst = Math.min(courtW, wRecv);
+      if (worst < minW) pen += 4 * (minW - worst);
+    }
+    return pen;
+  }
+  function evalMap(map){
+    var S = sysObj(), lib = useLibero() ? map.L : null, s = 0;
+    /* Zuspiel wiegt schwerer: lieber einen Angreifer tauschen als den Zuspieler */
+    S.roles.forEach(function(r){ var p = pById(map[r]); if (p) s += (ROLE_TYPE[r] === 'Z' && S.kind !== 'pos' ? 2 : 1) * score(p, S.kind === 'pos' ? null : ROLE_TYPE[r]); });
+    if (lib) { var lp = pById(lib); if (lp) s += score(lp, 'L'); }
+    return s - mixPenalty(map, lib);
+  }
+  function autoAssign(){
+    var S = sysObj(), a = state.lineup.assign[state.sys];
+    var roles = S.roles.slice();
+    if (S.kind === 'shape') roles.sort(function(x, y){ return ROLE_PRIO[x] - ROLE_PRIO[y]; });
+    if (useLibero()) roles.push('L');
+    var map = {};
+    S.roles.forEach(function(r){ map[r] = a[r]; });
+    if (useLibero()) map.L = state.lineup.liberoP;
+    var used = {}, pool = available(), filled = [];
+    /* 1. Grob nach Rollen verteilen */
+    roles.forEach(function(role){
+      var t = S.kind === 'pos' && role !== 'L' ? null : ROLE_TYPE[role];
+      var best = null, bs = -1;
+      pool.forEach(function(p){
+        if (used[p.id]) return;
+        var s = score(p, t) + (p.id === map[role] ? 0.1 : 0);
+        if (s > bs) { bs = s; best = p; }
+      });
+      if (best) { used[best.id] = true; map[role] = best.id; filled.push(role); }
+    });
+    /* 2. Verbessern: Rollen tauschen oder jemanden von der Bank reinholen, solange es besser wird */
+    /* Jede Runde wird der beste einzelne Schritt genommen, bis sich nichts mehr verbessert */
+    var cur = evalMap(map), guard = 0;
+    while (guard++ < 60) {
+      var bestE = cur, bestMove = null;
+      var inMap = {};
+      filled.forEach(function(r){ inMap[map[r]] = true; });
+      for (var x = 0; x < filled.length; x++) {
+        var r1 = filled[x];
+        for (var y = x + 1; y < filled.length; y++) {
+          var r2 = filled[y], t = map[r1];
+          map[r1] = map[r2]; map[r2] = t;
+          var e = evalMap(map);
+          if (e > bestE + 1e-9) { bestE = e; bestMove = {swap:[r1, r2]}; }
+          t = map[r1]; map[r1] = map[r2]; map[r2] = t;
+        }
+        for (var j = 0; j < pool.length; j++) {
+          var cand = pool[j];
+          if (inMap[cand.id]) continue;
+          var old = map[r1];
+          map[r1] = cand.id;
+          var e2 = evalMap(map);
+          if (e2 > bestE + 1e-9) { bestE = e2; bestMove = {role:r1, id:cand.id}; }
+          map[r1] = old;
+        }
+      }
+      if (!bestMove) break;
+      if (bestMove.swap) { var s1 = bestMove.swap[0], s2 = bestMove.swap[1], tt = map[s1]; map[s1] = map[s2]; map[s2] = tt; }
+      else map[bestMove.role] = bestMove.id;
+      cur = bestE;
+    }
+    S.roles.forEach(function(r){ a[r] = map[r]; });
+    if (useLibero()) state.lineup.liberoP = map.L;
+  }
+
+  /* ---------- Link teilen (für die eigenständige Version, z. B. GitHub Pages) ---------- */
+  function b64e(str){
+    var bytes = new TextEncoder().encode(str), bin = '';
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function b64d(s){
+    s = s.replace(/-/g, '+').replace(/_/g, '/');
+    while (s.length % 4) s += '=';
+    var bin = atob(s), bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+  function buildPayload(){
+    var last = 7;
+    state.persons.forEach(function(p, i){ if (p.name.trim() || p.main || p.second) last = Math.max(last, i + 1); });
+    var A = {};
+    Object.keys(SYS).forEach(function(sk){
+      A[sk] = SYS[sk].roles.map(function(r){ return IDS.indexOf(state.lineup.assign[sk][r]) + 1; });
+    });
+    return {v:1, t:Date.now(), s:state.sys,
+      p:state.persons.slice(0, last).map(function(p){ return [p.name, p.g, p.main, p.second, p.present ? 1 : 0]; }),
+      a:A, l:IDS.indexOf(state.lineup.liberoP) + 1, lb:state.lineup.libero ? 1 : 0, w:state.lineup.minW || 0};
+  }
+  function applyPayload(o){
+    if (!o || o.v !== 1 || !Array.isArray(o.p)) return false;
+    var persons = defaultPersons();
+    o.p.slice(0, N).forEach(function(arr, i){
+      if (Array.isArray(arr)) sanitizePerson(persons[i], {name:String(arr[0] || ''), g:arr[1], main:arr[2], second:arr[3], present:arr[4] !== 0});
+    });
+    var L = defaultLineup(), src = {assign:{}, liberoP:IDS[(o.l | 0) - 1], libero:!!o.lb, minW:o.w};
+    if (o.a && typeof o.a === 'object') Object.keys(SYS).forEach(function(sk){
+      if (!Array.isArray(o.a[sk])) return;
+      src.assign[sk] = {};
+      SYS[sk].roles.forEach(function(r, k){ var id = IDS[(o.a[sk][k] | 0) - 1]; if (id) src.assign[sk][r] = id; });
+    });
+    sanitizeLineup(L, src);
+    state.persons = persons;
+    state.lineup = L;
+    if (SYS[o.s]) state.sys = o.s;
+    return true;
+  }
+  function applyHash(){
+    var h = location.hash || '';
+    if (h.indexOf('#team=') !== 0 || h.length > 20000) return null;
+    var backup = {persons:clone(state.persons), lineup:clone(state.lineup), sys:state.sys}, o = null;
+    try { o = JSON.parse(b64d(h.slice(6))); } catch (e) { o = null; }
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    if (!applyPayload(o)) return {error:true};
+    saveLocalTeam(); savePrefs();
+    return {backup:backup, t:typeof o.t === 'number' ? o.t : 0};
+  }
+  function showLinkBanner(info){
+    var b = $('linkbanner');
+    b.hidden = false;
+    if (info.error) {
+      $('link-msg').textContent = 'Der Link ist unvollständig oder beschädigt. Deine bisherige Liste bleibt unverändert.';
+      $('undo-link').hidden = true;
+      return;
+    }
+    var when = '';
+    try { if (info.t) when = ' (Stand ' + new Date(info.t).toLocaleString('de-DE', {weekday:'short', day:'numeric', month:'numeric', hour:'2-digit', minute:'2-digit'}) + ')'; } catch (e) {}
+    $('link-msg').textContent = 'Aufstellung aus dem Link übernommen' + when + '. Sie ist jetzt in diesem Browser gespeichert.';
+    $('undo-link').onclick = function(){
+      state.persons = info.backup.persons; state.lineup = info.backup.lineup; state.sys = info.backup.sys;
+      saveLocalTeam(); savePrefs(); renderData();
+      b.hidden = true;
+    };
+  }
+  $('share').addEventListener('click', function(){
+    var url = location.href.split('#')[0] + '#team=' + b64e(JSON.stringify(buildPayload()));
+    var msg = $('share-msg'), out = $('share-out');
+    function showManual(){
+      out.hidden = false; out.value = url; out.focus(); out.select();
+      msg.textContent = 'Der Link ist markiert. Kopier ihn und schick ihn in die Teamgruppe.';
+    }
+    function copy(){
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function(){ out.hidden = true; msg.textContent = 'Link kopiert. Füg ihn in die Teamgruppe ein.'; }, showManual);
+      } else showManual();
+    }
+    if (navigator.share) {
+      navigator.share({title:'Aufstellung', text:'Unsere Aufstellung:', url:url}).then(function(){
+        msg.textContent = 'Link geteilt.';
+      }, function(err){ if (!(err && err.name === 'AbortError')) copy(); });
+    } else copy();
+  });
+
+  /* ---------- Events ---------- */
+  document.querySelectorAll('input[name=sys]').forEach(function(el){
+    el.addEventListener('change', function(){ state.sys = el.value; savePrefs(); renderData(); });
+  });
+  document.querySelectorAll('input[name=dir]').forEach(function(el){
+    el.addEventListener('change', function(){ state.dir = el.value; savePrefs(); renderRots(); });
+  });
+  document.querySelectorAll('input[name=defsys]').forEach(function(el){
+    el.addEventListener('change', function(){ state.defsys = el.value; savePrefs(); renderRots(); });
+  });
+  $('libero').addEventListener('change', function(e){ state.lineup.libero = e.target.checked; saveLineup(); renderData(); });
+  $('auto').addEventListener('click', function(){ autoAssign(); saveLineup(); renderData(); });
+  $('minw').addEventListener('change', function(e){
+    var v = parseInt(e.target.value, 10);
+    state.lineup.minW = v >= 0 && v <= 3 ? v : 0;
+    saveLineup(); renderData();
+  });
+  $('import').addEventListener('click', function(){
+    if (!localTeam) return;
+    localTeam.persons.forEach(function(lp, i){
+      var p = state.persons[i];
+      sanitizePerson(p, lp);
+      if (lp.name && lp.name.trim()) savePerson(p, 0);
+    });
+    sanitizeLineup(state.lineup, localTeam.lineup);
+    saveLineup();
+    localTeam = null;
+    renderData();
+  });
+  $('roster').addEventListener('input', function(e){
+    var i = e.target.getAttribute('data-i');
+    if (i === null || e.target.getAttribute('data-f') !== 'name') return;
+    var p = state.persons[+i];
+    p.name = e.target.value.slice(0, 20);
+    savePerson(p, 700);
+    renderInfo(); renderRoles(); updateRoster(); renderRots();
+  });
+  $('roster').addEventListener('change', function(e){
+    var i = e.target.getAttribute('data-i'), f = e.target.getAttribute('data-f');
+    if (i === null || !f || f === 'name') return;
+    var p = state.persons[+i];
+    if (f === 'present') p.present = e.target.checked;
+    else if (f === 'g') p.g = e.target.value === 'w' ? 'w' : 'm';
+    else if (f === 'main' || f === 'second') p[f] = PROLE_NAME[e.target.value] ? e.target.value : '';
+    savePerson(p, 0);
+    renderInfo(); renderRoles(); updateRoster(); renderRots();
+  });
+  $('roles').addEventListener('change', function(e){
+    var role = e.target.getAttribute('data-role'); if (!role) return;
+    if (role === 'L') state.lineup.liberoP = e.target.value; else state.lineup.assign[state.sys][role] = e.target.value;
+    saveLineup();
+    renderInfo(); renderWarn(); renderBank(); updateRoster(); renderRots();
+  });
+
+  var STANDALONE = !(window.claude && typeof window.claude.use === 'function');
+  var linkInfo = STANDALONE ? applyHash() : null;
+  renderRosterShell();
+  setStatus('local');
+  renderData();
+  if (STANDALONE) $('sharebox').hidden = false;
+  if (linkInfo) showLinkBanner(linkInfo);
+  if (STANDALONE) window.addEventListener('hashchange', function(){
+    var info = applyHash();
+    if (info) { renderData(); showLinkBanner(info); }
+  });
+  initDb();
+})();
+</script>
+
+</body>
+</html>
